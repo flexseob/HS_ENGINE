@@ -1,0 +1,10 @@
+﻿  OBJLoader.cpp
+C:\Users\do843\Desktop\fall 2021\CS300\CS300_hoseobjeong\HS_Engine\Engine\OBJLoader.cpp(147,47): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\do843\Desktop\fall 2021\CS300\CS300_hoseobjeong\HS_Engine\Engine\OBJLoader.cpp(189,50): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\do843\Desktop\fall 2021\CS300\CS300_hoseobjeong\HS_Engine\Engine\OBJLoader.cpp(218,31): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\do843\Desktop\fall 2021\CS300\CS300_hoseobjeong\HS_Engine\Engine\OBJLoader.cpp(222,39): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\do843\Desktop\fall 2021\CS300\CS300_hoseobjeong\HS_Engine\Engine\OBJLoader.cpp(231,44): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\do843\Desktop\fall 2021\CS300\CS300_hoseobjeong\HS_Engine\Engine\OBJLoader.cpp(238,39): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\do843\Desktop\fall 2021\CS300\CS300_hoseobjeong\HS_Engine\Engine\OBJLoader.cpp(249,40): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+  HS_Engine.vcxproj -> C:\Users\do843\Desktop\fall 2021\CS300\CS300_hoseobjeong\x64\Release\HS_Engine.lib
+  0개 파일이 복사되었습니다.
