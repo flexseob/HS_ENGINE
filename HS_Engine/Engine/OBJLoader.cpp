@@ -207,7 +207,50 @@ namespace HS_Engine
 		
 	}
 
-	
+	void ObjectLoader::ConvertToGLFormatMesh(Mesh* mesh)
+	{
+		mesh->ClearData();
+
+		std::map<std::tuple<int, int, int>, unsigned int> vertexMap;
+		for (ObjectVertex& vert : m_facesData)
+		{
+			std::tuple<int, int, int> vertStr = vert.tupledata();
+			auto iter = vertexMap.find(vertStr);
+
+			if (iter == vertexMap.end())
+			{
+				unsigned vIdx = mesh->m_Vertexs.size() / 3;
+				glm::vec3& vertex = m_VertexData[vert.m_pIdx];
+
+				mesh->m_Vertexs.push_back(vertex.x);
+				mesh->m_Vertexs.push_back(vertex.y);
+				mesh->m_Vertexs.push_back(vertex.z);
+
+				glm::vec3& normal = m_NormalData[vert.m_nIdx];
+				mesh->m_Normals.push_back(normal.x);
+				mesh->m_Normals.push_back(normal.y);
+				mesh->m_Normals.push_back(normal.z);
+
+				if (m_TexData.empty() == false)
+				{
+					glm::vec2& texcoord = m_TexData[vert.m_tcIdx];
+					mesh->m_TexCoords.push_back(texcoord.x);
+					mesh->m_TexCoords.push_back(texcoord.y);
+				}
+
+
+				mesh->m_Faces.push_back(static_cast<unsigned int>(vIdx));
+				vertexMap[vertStr] = static_cast<unsigned int>(vIdx);
+			}
+			else
+			{
+				mesh->m_Faces.push_back(iter->second);
+			}
+		}
+		
+	}
+
+
 	std::shared_ptr<Mesh> ObjectLoader::Load(std::string path, bool center)
 	{
 		std::shared_ptr<Mesh> newmesh = std::make_shared<Mesh>();
@@ -225,6 +268,26 @@ namespace HS_Engine
 			<< timeDuration
 			<< "  milli seconds." << std::endl;
 		
+		return newmesh;
+	}
+
+	Mesh* ObjectLoader::Load_raw_ptr(std::string path, bool center)
+	{
+		Mesh* newmesh = new Mesh();
+		auto startTime = std::chrono::high_resolution_clock::now();
+		LoadObjFile(path);
+		GenerateNormalIfnotexist();
+		ConvertToGLFormatMesh(newmesh);
+		newmesh->SetIndexBufferCount(m_facesData.size());
+
+		auto endTime = std::chrono::high_resolution_clock::now();
+
+		double timeDuration = std::chrono::duration< double, std::milli >(endTime - startTime).count();
+
+		std::cout << "\"" << path << "\"" << " OBJ file read in "
+			<< timeDuration
+			<< "  milli seconds." << std::endl;
+
 		return newmesh;
 	}
 

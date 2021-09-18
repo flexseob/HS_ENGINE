@@ -27,8 +27,14 @@ namespace  HS_Engine
 	public:
 		void LoadObjFile(std::string path);
 		void GenerateNormalIfnotexist();
+		
 		void ConvertToGLFormatMesh(std::shared_ptr<Mesh> mesh);
+		//template<typename T>
+		//void ConvertToGLFormatMesh(T* mesh);
+		
+		void ConvertToGLFormatMesh(Mesh* mesh);
 		std::shared_ptr<Mesh> Load(std::string path, bool center);
+		Mesh* Load_raw_ptr(std::string path, bool center);
 		void ClearObjectData();
 		float GetHugeModelAxisRange();
 		bool CheckOutofNDCFormat();
@@ -60,5 +66,6 @@ namespace  HS_Engine
 		glm::vec3 m_max{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
 		
 	};
+
 }
 
