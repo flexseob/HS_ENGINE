@@ -6,7 +6,6 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "Core/Affine.h"
 namespace HS_Engine
 {
 	class Shader
@@ -17,7 +16,6 @@ namespace HS_Engine
 		Shader(const std::string& vert, const std::string& frag, const std::string& geom, const std::string& tess,const std::string& tese);
 		~Shader();
 		void LinkShader();
-		void BindUniformVariable(const std::string& variable, Vector vec);
 		void BindUniformVariable(const std::string& variable, float floating_value);
 		void BindUniformVariable(const std::string& variable, glm::vec2 vec2);
 		void BindUniformVariable(const std::string& variable, glm::vec3 vec2);

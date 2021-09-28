@@ -14,9 +14,9 @@
     <ClInclude Include="Engine\Buffer.h" />
     <ClInclude Include="Engine\Context.h" />
     <ClInclude Include="Engine\Core\Camera.h" />
-    <ClInclude Include="Engine\Core\Vector2d.h" />
     <ClInclude Include="Engine\Engine.h" />
     <ClInclude Include="Engine\Material.h" />
+    <ClInclude Include="Engine\MaterialManager.h" />
     <ClInclude Include="Engine\MathLibrary.h" />
     <ClInclude Include="Engine\MeshManager.h" />
     <ClInclude Include="Engine\Mesh\Mesh.h" />
@@ -40,6 +40,7 @@
     <ClCompile Include="Engine\Context.cpp" />
     <ClCompile Include="Engine\Engine.cpp" />
     <ClCompile Include="Engine\Material.cpp" />
+    <ClCompile Include="Engine\MaterialManager.cpp" />
     <ClCompile Include="Engine\MeshManager.cpp" />
     <ClCompile Include="Engine\Mesh\Mesh.cpp" />
     <ClCompile Include="Engine\Mesh\PreceduralMesh.cpp" />
@@ -100,6 +101,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -114,6 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

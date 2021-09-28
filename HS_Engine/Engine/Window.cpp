@@ -21,7 +21,7 @@ void HS_Engine::Window::Init(const WindowProperties& window_properties)
 		//set gl version
 		if(IsSuccess)
 		{
-			Context::SetupOpenGLVersion(4, 6);
+			Context::SetupOpenGLVersion(4, 0);
 		}
 		else
 		{

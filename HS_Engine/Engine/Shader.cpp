@@ -416,18 +416,6 @@ namespace HS_Engine
 
 	}
 
-	void Shader::BindUniformVariable(const std::string& variable, Vector vec)
-	{
-		for (auto& uniformid : m_UniformIDs)
-		{
-			if (uniformid.second == variable)
-			{
-				glUniform3f(uniformid.first, vec.x, vec.y, vec.z);
-				return;
-			}
-		}
-		std::cout << variable << " is not exist!" << std::endl;
-	}
 	void Shader::BindUniformVariable(const std::string& variable, float floating_value)
 	{
 		for (auto& uniformid : m_UniformIDs)

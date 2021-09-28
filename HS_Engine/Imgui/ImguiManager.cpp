@@ -31,7 +31,7 @@ namespace HS_Engine
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 			{
-				ImGui::Begin("Menu");
+				ImGui::Begin("Settings");
 				{
 					ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 					if(Scene* CurrScene = Engine::GetSceneManger().GetCurrentScene();CurrScene != nullptr)
@@ -41,24 +41,13 @@ namespace HS_Engine
 					ImGui::NewLine();
 					
 				}
-				ImGui::End();
-				ImGui::Begin("good");
-				{
-					ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-					if (Scene* CurrScene = Engine::GetSceneManger().GetCurrentScene(); CurrScene != nullptr)
-					{
-						CurrScene->ImGuiUpdate();
-					}
-					ImGui::NewLine();
-			
-				}
-				ImGui::End();
+				
 			}
 
 			ImGui::Render();
 			int display_w, display_h;
 			glfwGetFramebufferSize(m_window, &display_w, &display_h);
-
+			glViewport(0, 0, display_w, display_h);
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		}

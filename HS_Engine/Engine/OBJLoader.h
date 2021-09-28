@@ -7,8 +7,6 @@
 #include <cfloat>
 namespace  HS_Engine
 {
-
-
 	class Utils {
 	public:
 		static void trimString(std::string& str)
@@ -21,20 +19,20 @@ namespace  HS_Engine
 			str.erase(location + 1);
 		}
 	};
-
 	class ObjectLoader
 	{
 	public:
 		void LoadObjFile(std::string path);
-		void GenerateNormalIfnotexist();
+		void GenerateVertexNormalIfnotexist();
 		
-		void ConvertToGLFormatMesh(std::shared_ptr<Mesh> mesh);
-		//template<typename T>
-		//void ConvertToGLFormatMesh(T* mesh);
+		void ConvertToGLFormatMeshByFaceNormal(Mesh* mesh);
+
 		
-		void ConvertToGLFormatMesh(Mesh* mesh);
+		void ConvertToGLFormatMeshByVertexNormal(Mesh* mesh);
+		void ConvertToGLFormatMeshByVertexNormal(std::shared_ptr<Mesh> mesh);
 		std::shared_ptr<Mesh> Load(std::string path, bool center);
 		Mesh* Load_raw_ptr(std::string path, bool center);
+		Mesh* Load_raw_ptr_new(std::string path, bool center);
 		void ClearObjectData();
 		float GetHugeModelAxisRange();
 		bool CheckOutofNDCFormat();
@@ -64,6 +62,7 @@ namespace  HS_Engine
 
 		glm::vec3 m_min{ FLT_MAX, FLT_MAX, FLT_MAX };
 		glm::vec3 m_max{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
+
 		
 	};
 

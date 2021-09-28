@@ -16,7 +16,8 @@ namespace HS_Engine
 	public:
 		Material() = default;
 		Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess)
-			:m_ambient(ambient), m_diffuse(diffuse), m_specular(specular), m_shininess(shininess) {} 
+			:m_ambient(ambient), m_diffuse(diffuse), m_specular(specular), m_shininess(shininess) {}
+		Material(const Material& material);
 		glm::vec3 GetAmbient() const;
 		glm::vec3 Getdiffuse() const;
 		glm::vec3 GetSpecular() const;

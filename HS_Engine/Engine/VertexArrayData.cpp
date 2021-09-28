@@ -34,7 +34,6 @@ namespace  HS_Engine
 		const auto& described_Data = vertex_buffer->GetDescribedData();
 		for (const auto& element : described_Data)
 		{
-			glEnableVertexAttribArray(element.m_LayoutLocation);
 			glVertexAttribPointer
 			(
 				element.m_LayoutLocation,
@@ -44,26 +43,48 @@ namespace  HS_Engine
 				described_Data.GetStride(),
 				reinterpret_cast<const void*>(element.m_Offset)
 			);
+			glEnableVertexAttribArray(element.m_LayoutLocation);
 		}
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+		vertex_buffer->UnBind();
 		m_VertexBuffers.push_back(vertex_buffer);
 	}
 
+	
+
+
+
 	void VertexArray::AddIndexBuffer(std::shared_ptr<IndexBuffer> index_buffer)
 	{
-		glBindVertexArray(m_VertexArrayID);
+		if (index_buffer->GetIndexID() != std::numeric_limits<unsigned int>::max())
+		{
+			glBindVertexArray(m_VertexArrayID);
 		index_buffer->Bind();
 
 		m_IndexBuffers = index_buffer;
+		glBindVertexArray(0);
+		index_buffer->UnBind();
+		}
+		else
+		{
+			m_IndexBuffers = index_buffer;
+		}
 	}
 
 	void VertexArray::ClearVertexBuffer()
 	{
-		for(auto& a : m_VertexBuffers)
+		glBindVertexArray(m_VertexArrayID);
+		for(auto& vertex_buffer : m_VertexBuffers)
 		{
-			a.reset();
+			//vertex_buffer->Bind();
+			const auto& described_Data = vertex_buffer->GetDescribedData();
+			for (const auto& element : described_Data)
+			{
+				glDisableVertexAttribArray(element.m_LayoutLocation);
+			}
 		}
+		//glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 		m_VertexBuffers.clear();
 	}
 

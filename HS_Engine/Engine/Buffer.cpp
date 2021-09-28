@@ -76,14 +76,16 @@ namespace HS_Engine
 
 	VertexBuffer::VertexBuffer(unsigned size)
 	{
-		glCreateBuffers(1, &m_Render_ID);
+		//glCreateBuffers(1, &m_Render_ID);
+		glGenBuffers(1, &m_Render_ID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_Render_ID);
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 
 	VertexBuffer::VertexBuffer(float* vertices, unsigned size)
 	{
-		glCreateBuffers(1, &m_Render_ID);
+		//glCreateBuffers(1, &m_Render_ID);
+		glGenBuffers(1, &m_Render_ID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_Render_ID);
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 	}
@@ -112,7 +114,7 @@ namespace HS_Engine
 	IndexBuffer::IndexBuffer(unsigned* indices, unsigned count)
 		:m_Count(count)
 	{
-		glCreateBuffers(1, &m_Render_ID);
+		glGenBuffers(1, &m_Render_ID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Render_ID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * count, indices, GL_STATIC_DRAW);
 	}
@@ -134,6 +136,6 @@ namespace HS_Engine
 
 	void IndexBuffer::UnBind() const
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Render_ID);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 }

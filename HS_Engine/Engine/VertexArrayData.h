@@ -1,8 +1,10 @@
 
 #pragma once
 #include <memory>
+#include <string>
 #include <vector>
 #include "Buffer.h"
+#include <unordered_map>
 
 namespace HS_Engine
 {
@@ -17,9 +19,11 @@ namespace HS_Engine
 		void AddVertexBuffer(std::shared_ptr<VertexBuffer> vertex_buffer);
 		void AddIndexBuffer(std::shared_ptr<IndexBuffer> index_buffer);
 
+		
+		
 		void ClearVertexBuffer();
 		void ClearIndexBuffer();
-		std::shared_ptr<IndexBuffer> GetIndexBuffers() const { return m_IndexBuffers; }
+        std::shared_ptr<IndexBuffer> GetIndexBuffers() const { return m_IndexBuffers; }
 	private:
 		unsigned int m_VertexArrayID;
 		std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffers;

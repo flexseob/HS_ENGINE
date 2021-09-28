@@ -6,10 +6,19 @@
 #include <sstream>
 #include <glm/vec2.hpp>
 
-#include "../Engine/Core/Vector2d.h"
+
 
 namespace HS_Engine
 {
+	Material::Material(const Material& material)
+	{
+		m_ambient = material.m_ambient;
+		m_diffuse = material.m_diffuse;
+		m_specular = material.m_specular;
+		m_shininess = material.m_shininess;
+		
+	}
+
 	glm::vec3 Material::GetAmbient() const
 	{
 		return m_ambient;

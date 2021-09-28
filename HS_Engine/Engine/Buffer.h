@@ -69,7 +69,7 @@ namespace HS_Engine
 		~IndexBuffer();
 		void Bind() const;
 		void UnBind() const;
-
+		unsigned int GetIndexID()const { return m_Render_ID; }
 		unsigned int GetCount() const { return  m_Count; }
 
 	private:

@@ -54,3 +54,8 @@ void HS_Engine::Render::DrawPatches(std::shared_ptr<VertexArray> vertex_array)
 	glDrawElements(GL_PATCHES,vertex_array->GetIndexBuffers()->GetCount(), GL_UNSIGNED_INT, nullptr);
 }
 
+void HS_Engine::Render::DrawLine(std::shared_ptr<VertexArray> vertex_array)
+{
+	glDrawArrays(GL_LINES, 0, vertex_array->GetIndexBuffers()->GetCount());
+}
+
