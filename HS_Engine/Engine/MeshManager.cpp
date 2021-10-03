@@ -1,5 +1,6 @@
+
 #include "MeshManager.h"
-#include "Mesh/PreceduralMesh.hpp"
+#include "Mesh/ProceduralMesh.h"
 #include <iostream>
 
 namespace HS_Engine
@@ -10,9 +11,10 @@ namespace HS_Engine
 
 		if(mesh_iter == mMeshdata.end())
 		{
-			Mesh* new_mesh = m_ObjLoader.Load_raw_ptr(path, true);
+			Mesh* new_mesh = m_ObjLoader.Load_raw_ptr(path);
 			new_mesh->SetRenderType(render_types);
 			new_mesh->InitBuffer();
+			new_mesh->SetMeshName(meshname);
 			mMeshdata.insert({ meshname,new_mesh });
 			m_ObjLoader.ClearObjectData();
 			return new_mesh;
@@ -21,7 +23,7 @@ namespace HS_Engine
 		return mesh_iter->second;
 	}
 
-	Mesh* MeshManager::AddMesh(std::string meshname, E_Preceduralmesh preceduralmesh,E_RenderTypes render_types)
+	Mesh* MeshManager::AddMesh(std::string meshname, E_Proceduralmesh preceduralmesh,E_RenderTypes render_types)
 	{
 		auto mesh_iter = mMeshdata.find(meshname);
 
@@ -30,25 +32,26 @@ namespace HS_Engine
 			Mesh* new_mesh = nullptr;
 			switch(preceduralmesh)
 			{
-			case E_Preceduralmesh::SPHERE:
-				new_mesh = CreateSphere(1.f, 10);	
+			case E_Proceduralmesh::SPHERE:
+				new_mesh = CreateSphere(1.f, 10);
 				break;
-			case E_Preceduralmesh::CUBE:
-				new_mesh = CreateCube(1, 1);
+			case E_Proceduralmesh::CUBE:
+				//TODO : need to Implement
 				break;
-			case E_Preceduralmesh::CYLINDER:
-				new_mesh = CreateCylinder(1, 1);
+			case E_Proceduralmesh::CYLINDER:
+				//TODO : need to Implement
 				break;
-			case E_Preceduralmesh::PLANE:
-				new_mesh = CreatePlane(1, 1);
+			case E_Proceduralmesh::PLANE:
+				//TODO : need to Implement
 				break;
-			case E_Preceduralmesh::CIRCLE:
+			case E_Proceduralmesh::CIRCLE:
 				new_mesh = CreateCircle(100);
 				break;
 			}
-			
+
+			new_mesh->SetMeshName(meshname);
 			new_mesh->SetRenderType(render_types);
-			dynamic_cast<PreceduralMesh*>(new_mesh)->InitBuffer();
+			dynamic_cast<ProceduralMesh*>(new_mesh)->InitBuffer();
 			mMeshdata.insert({ meshname,new_mesh });
 		
 			return new_mesh;

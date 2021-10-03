@@ -1,4 +1,6 @@
+
 #include "Object.h"
+#include "Shader.h"
 
 namespace HS_Engine
 {
@@ -7,7 +9,7 @@ namespace HS_Engine
 	{
 	}
 
-	Object::Object(std::string objectname, std::string meshname, E_MeshTypes meshtype, E_Preceduralmesh preceduralmeshtype, E_RenderTypes rendertype)
+	Object::Object(std::string objectname, std::string meshname, E_MeshTypes meshtype, E_Proceduralmesh preceduralmeshtype, E_RenderTypes rendertype)
 		: m_Objname(objectname), m_MeshType(meshtype), m_Meshname(meshname), m_RenderType(rendertype), m_PreceduralmeshType(preceduralmeshtype)
 	{
 	}
@@ -21,9 +23,10 @@ namespace HS_Engine
 
 	void Object::Init()
 	{
+		if (!m_shader) return;
 		m_shader->FindUniformLocation("model");
-		m_shader->FindUniformLocation("objectColor");
-		
+
+		if (!m_shader_debug) return;
 		m_shader_debug->FindUniformLocation("model");
 	
 	}
@@ -77,7 +80,7 @@ namespace HS_Engine
 		return m_MeshType;
 	}
 
-	E_Preceduralmesh Object::GetPreceduralmeshType() const
+	E_Proceduralmesh Object::GetPreceduralmeshType() const
 	{
 		return m_PreceduralmeshType;
 	}
@@ -121,11 +124,13 @@ namespace HS_Engine
 	void Object::SetMaterial(Material material)
 	{
 		m_ObjData.m_material = material;
+		m_Materialname = material.GetMaterialName();
 	}
 
 	void Object::SetMaterial(Material* material)
 	{
 		m_ObjData.m_material = *material;
+		m_Materialname = material->GetMaterialName();
 	}
 
 	void Object::PreRender()
@@ -134,17 +139,19 @@ namespace HS_Engine
 		m_ObjData.m_ModelMat = glm::translate(m_ObjData.m_ModelMat, m_ObjData.m_Position);
 		m_ObjData.m_ModelMat = glm::scale(m_ObjData.m_ModelMat, m_ObjData.m_Scale);
 		m_ObjData.m_ModelMat = glm::rotate(m_ObjData.m_ModelMat, glm::radians(m_ObjData.m_Angle), m_ObjData.m_RotateAxis);
+
 		m_mesh->PreRender();
 	}
 
 	void Object::Render()
 	{
+		if (!m_shader) return;
+		
 		m_shader->Bind();
 		m_shader_debug->FindUniformLocation("model");
 		m_shader->BindUniformVariable("material.diffuse", m_ObjData.m_material.Getdiffuse());
 		m_shader->BindUniformVariable("material.ambient", m_ObjData.m_material.GetAmbient());
-		//m_shader->BindUniformVariable("material.specular", m_ObjData.m_material.GetSpecular());
-		//m_shader->BindUniformVariable("material.shininess", m_ObjData.m_material.GetShinness());
+		m_shader->BindUniformVariable("material.specular", m_ObjData.m_material.GetSpecular());
 		m_shader->BindUniformVariable("model", m_ObjData.m_ModelMat);
 		m_mesh->Render(m_RenderType);
 		m_shader->Unbind();
@@ -160,15 +167,22 @@ namespace HS_Engine
 
 	void Object::PostRender([[maybe_unused]]double dt)
 	{
-		if(pre_render_function != nullptr)
+		if(m_PostRenderFunction != nullptr)
 		{
-			pre_render_function(dt);
+			m_PostRenderFunction(dt);
 		}
+	}
+
+	void Object::SetPostRenderFunction(std::function<void(double)> function)
+	{
+		m_PostRenderFunction = function;
 	}
 
 	void Object::SetMesh(Mesh* mesh)
 	{
 		m_mesh = mesh;
+		m_Meshname = m_mesh->GetMeshName();
+		m_RenderType = m_mesh->GetRenderType();
 	}
 
 	glm::vec3 Object::GetPosition() const

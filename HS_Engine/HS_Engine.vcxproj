@@ -10,54 +10,10 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Engine\Buffer.h" />
-    <ClInclude Include="Engine\Context.h" />
-    <ClInclude Include="Engine\Core\Camera.h" />
-    <ClInclude Include="Engine\Engine.h" />
-    <ClInclude Include="Engine\Material.h" />
-    <ClInclude Include="Engine\MaterialManager.h" />
-    <ClInclude Include="Engine\MathLibrary.h" />
-    <ClInclude Include="Engine\MeshManager.h" />
-    <ClInclude Include="Engine\Mesh\Mesh.h" />
-    <ClInclude Include="Engine\Mesh\PreceduralMesh.hpp" />
-    <ClInclude Include="Engine\Object.h" />
-    <ClInclude Include="Engine\ObjectManager.h" />
-    <ClInclude Include="Engine\OBJLoader.h" />
-    <ClInclude Include="Engine\Render.h" />
-    <ClInclude Include="Engine\Scene.h" />
-    <ClInclude Include="Engine\Shader.h" />
-    <ClInclude Include="Engine\SceneManager.h" />
-    <ClInclude Include="Engine\Types.h" />
-    <ClInclude Include="Engine\ValueNoise.h" />
-    <ClInclude Include="Engine\VertexArrayData.h" />
-    <ClInclude Include="Engine\Window.h" />
-    <ClInclude Include="Engine\새 폴더\Input.h" />
-    <ClInclude Include="Imgui\ImguiManager.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Engine\Buffer.cpp" />
-    <ClCompile Include="Engine\Context.cpp" />
-    <ClCompile Include="Engine\Engine.cpp" />
-    <ClCompile Include="Engine\Material.cpp" />
-    <ClCompile Include="Engine\MaterialManager.cpp" />
-    <ClCompile Include="Engine\MeshManager.cpp" />
-    <ClCompile Include="Engine\Mesh\Mesh.cpp" />
-    <ClCompile Include="Engine\Mesh\PreceduralMesh.cpp" />
-    <ClCompile Include="Engine\Object.cpp" />
-    <ClCompile Include="Engine\ObjectManager.cpp" />
-    <ClCompile Include="Engine\OBJLoader.cpp" />
-    <ClCompile Include="Engine\Render.cpp" />
-    <ClCompile Include="Engine\Shader.cpp" />
-    <ClCompile Include="Engine\SceneManager.cpp" />
-    <ClCompile Include="Engine\VertexArrayData.cpp" />
-    <ClCompile Include="Engine\Window.cpp" />
-    <ClCompile Include="Imgui\ImguiManager.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{bdd04151-0105-489b-9218-39cf4a248112}</ProjectGuid>
+    <ProjectGuid>{feb16bf0-1008-4e0f-ac58-bd50f1300d05}</ProjectGuid>
     <RootNamespace>HSEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -82,31 +38,41 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\prop-pages\opengl-glfw-glew-glm-stb-imgui.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\prop-pages\opengl-glfw-glew-glm-stb-imgui.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>$(SolutionDir)lib\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)lib\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(SolutionDir)lib\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)lib\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);GLFW_DLL;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4312;4098;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3dll.lib;imgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;imgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -114,17 +80,69 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);GLFW_DLL;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4312;4098;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3dll.lib;imgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;imgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine\Buffer.h" />
+    <ClInclude Include="Engine\Context.h" />
+    <ClInclude Include="Engine\Core\Camera.h" />
+    <ClInclude Include="Engine\Engine.h" />
+    <ClInclude Include="Engine\Material.h" />
+    <ClInclude Include="Engine\MaterialManager.h" />
+    <ClInclude Include="Engine\MathLibrary.h" />
+    <ClInclude Include="Engine\MeshManager.h" />
+    <ClInclude Include="Engine\Mesh\Mesh.h" />
+    <ClInclude Include="Engine\Mesh\ProceduralMesh.h" />
+    <ClInclude Include="Engine\Object.h" />
+    <ClInclude Include="Engine\ObjectManager.h" />
+    <ClInclude Include="Engine\OBJLoader.h" />
+    <ClInclude Include="Engine\Render.h" />
+    <ClInclude Include="Engine\Scene.h" />
+    <ClInclude Include="Engine\SceneManager.h" />
+    <ClInclude Include="Engine\Shader.h" />
+    <ClInclude Include="Engine\Types.h" />
+    <ClInclude Include="Engine\VertexArrayData.h" />
+    <ClInclude Include="Engine\Window.h" />
+    <ClInclude Include="Imgui\ImguiManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine\Buffer.cpp" />
+    <ClCompile Include="Engine\Context.cpp" />
+    <ClCompile Include="Engine\Core\Camera.cpp" />
+    <ClCompile Include="Engine\Core\MathLibrary.cpp" />
+    <ClCompile Include="Engine\Engine.cpp" />
+    <ClCompile Include="Engine\Material.cpp" />
+    <ClCompile Include="Engine\MaterialManager.cpp" />
+    <ClCompile Include="Engine\MeshManager.cpp" />
+    <ClCompile Include="Engine\Mesh\Mesh.cpp" />
+    <ClCompile Include="Engine\Mesh\ProceduralMesh.cpp" />
+    <ClCompile Include="Engine\Object.cpp" />
+    <ClCompile Include="Engine\ObjectManager.cpp" />
+    <ClCompile Include="Engine\OBJLoader.cpp" />
+    <ClCompile Include="Engine\Render.cpp" />
+    <ClCompile Include="Engine\SceneManager.cpp" />
+    <ClCompile Include="Engine\Shader.cpp" />
+    <ClCompile Include="Engine\VertexArrayData.cpp" />
+    <ClCompile Include="Engine\Window.cpp" />
+    <ClCompile Include="Imgui\ImguiManager.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

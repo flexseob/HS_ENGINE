@@ -1,3 +1,4 @@
+
 #include "Mesh.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -162,6 +163,11 @@ namespace HS_Engine
 		m_DebugMagntite = magnitue;
 	}
 
+	void Mesh::SetMeshName(std::string name)
+	{
+		m_Meshname = name;
+	}
+
 	const float Mesh::GetDebugMagnitue() const
 	{
 		return m_DebugMagntite;
@@ -183,31 +189,31 @@ namespace HS_Engine
 		m_VertexArray = std::make_shared<VertexArray>();
 
 		//MeshByVertexNormal
-		std::shared_ptr<VertexBuffer> vertex_buffer = std::make_shared<VertexBuffer>(m_MeshDataByVertexNormal.m_Vertexs.data(), m_MeshDataByVertexNormal.m_Vertexs.size() * sizeof(float));
+		std::shared_ptr<VertexBuffer> vertex_buffer = std::make_shared<VertexBuffer>(m_MeshDataByVertexNormal.m_Vertexs.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_Vertexs.size() * sizeof(float)));
 		vertex_buffer->DescribeData({ { DataType::Float3,0 } });
 		m_VertexArray->AddVertexBuffer(vertex_buffer);
 		m_BufferForVertexNormal.push_back(vertex_buffer);
 		
 		if (!m_MeshDataByVertexNormal.m_Normals.empty())
 		{
-			std::shared_ptr<VertexBuffer> normal_buffer = std::make_shared<VertexBuffer>(m_MeshDataByVertexNormal.m_Normals.data(), m_MeshDataByVertexNormal.m_Normals.size() * sizeof(float));
-			normal_buffer->DescribeData({ {Float3, 1} });
+			std::shared_ptr<VertexBuffer> normal_buffer = std::make_shared<VertexBuffer>(m_MeshDataByVertexNormal.m_Normals.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_Normals.size() * sizeof(float)));
+			normal_buffer->DescribeData({ {DataType::Float3, 1} });
 			m_VertexArray->AddVertexBuffer(normal_buffer);
 			m_BufferForVertexNormal.push_back(normal_buffer);	
 		}
 		
 		if (GetRenderType() != E_RenderTypes::LINES)
 		{
-			std::shared_ptr<IndexBuffer> index_buffer = std::make_shared<IndexBuffer>(reinterpret_cast<unsigned*>(m_MeshDataByVertexNormal.m_Faces.data()), m_MeshDataByVertexNormal.m_Faces.size());
+			std::shared_ptr<IndexBuffer> index_buffer = std::make_shared<IndexBuffer>(reinterpret_cast<unsigned*>(m_MeshDataByVertexNormal.m_Faces.data()), static_cast<unsigned>(m_MeshDataByVertexNormal.m_Faces.size()));
 			m_VertexArray->AddIndexBuffer(index_buffer);
 			m_IndexBufferForVertexNormal = index_buffer;
 
-			std::shared_ptr<IndexBuffer> index_buffer1 = std::make_shared<IndexBuffer>(reinterpret_cast<unsigned*>(m_MeshDataByFaceNormal.m_Faces.data()), m_MeshDataByFaceNormal.m_Faces.size());
+			std::shared_ptr<IndexBuffer> index_buffer1 = std::make_shared<IndexBuffer>(reinterpret_cast<unsigned*>(m_MeshDataByFaceNormal.m_Faces.data()), static_cast<unsigned>(m_MeshDataByFaceNormal.m_Faces.size()));
 			m_IndexBufferForFaceNormal = index_buffer1;
 		}
 		else
 		{
-			std::shared_ptr<IndexBuffer> index_buffer = std::make_shared<IndexBuffer>(m_MeshDataByVertexNormal.m_Vertexs.size());
+			std::shared_ptr<IndexBuffer> index_buffer = std::make_shared<IndexBuffer>(static_cast<unsigned>(m_MeshDataByVertexNormal.m_Vertexs.size()));
 			m_VertexArray->AddIndexBuffer(index_buffer);
 			m_IndexBufferForVertexNormal = index_buffer;
 		}
@@ -216,29 +222,29 @@ namespace HS_Engine
 		//MeshByFaceNormal
 		if (!m_MeshDataByFaceNormal.m_Vertexs.empty())
 		{
-			std::shared_ptr<VertexBuffer> vertex_buffer1 = std::make_shared<VertexBuffer>(m_MeshDataByFaceNormal.m_Vertexs.data(), m_MeshDataByFaceNormal.m_Vertexs.size() * sizeof(float));
-			vertex_buffer1->DescribeData({ { Float3,0 } });
+			std::shared_ptr<VertexBuffer> vertex_buffer1 = std::make_shared<VertexBuffer>(m_MeshDataByFaceNormal.m_Vertexs.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_Vertexs.size() * sizeof(float)));
+			vertex_buffer1->DescribeData({ {DataType::Float3,0 } });
 			m_BufferForFaceNormal.push_back(vertex_buffer1);
 		}
 
 		if (!m_MeshDataByFaceNormal.m_Normals.empty())
 		{
-			std::shared_ptr<VertexBuffer> normal_buffer1 = std::make_shared<VertexBuffer>(m_MeshDataByFaceNormal.m_Normals.data(), m_MeshDataByFaceNormal.m_Normals.size() * sizeof(float));
-			normal_buffer1->DescribeData({ {Float3, 1} });
+			std::shared_ptr<VertexBuffer> normal_buffer1 = std::make_shared<VertexBuffer>(m_MeshDataByFaceNormal.m_Normals.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_Normals.size() * sizeof(float)));
+			normal_buffer1->DescribeData({ {DataType::Float3, 1} });
 			m_BufferForFaceNormal.push_back(normal_buffer1);
 		}
 		
 		if(!m_MeshDataByVertexNormal.m_TexCoords.empty())
 		{
-			std::shared_ptr<VertexBuffer> texcoord_buffer = std::make_shared<VertexBuffer>(m_MeshDataByVertexNormal.m_TexCoords.data(), m_MeshDataByVertexNormal.m_TexCoords.size() * sizeof(float));
-			texcoord_buffer->DescribeData({ { Float2, 2 } });
+			std::shared_ptr<VertexBuffer> texcoord_buffer = std::make_shared<VertexBuffer>(m_MeshDataByVertexNormal.m_TexCoords.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_TexCoords.size() * sizeof(float)));
+			texcoord_buffer->DescribeData({ {DataType::Float2, 2 } });
 			m_VertexArray->AddVertexBuffer(texcoord_buffer);
 			m_BufferForVertexNormal.push_back(texcoord_buffer);
 		}
 		if(!m_MeshDataByFaceNormal.m_TexCoords.empty())
 		{
-			std::shared_ptr<VertexBuffer> texcoord_buffer1 = std::make_shared<VertexBuffer>(m_MeshDataByFaceNormal.m_TexCoords.data(), m_MeshDataByFaceNormal.m_TexCoords.size() * sizeof(float));
-			texcoord_buffer1->DescribeData({ { Float2, 2 } });
+			std::shared_ptr<VertexBuffer> texcoord_buffer1 = std::make_shared<VertexBuffer>(m_MeshDataByFaceNormal.m_TexCoords.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_TexCoords.size() * sizeof(float)));
+			texcoord_buffer1->DescribeData({ {DataType::Float2, 2 } });
 			m_BufferForFaceNormal.push_back(texcoord_buffer1);
 		}
 		
@@ -250,12 +256,12 @@ namespace HS_Engine
 		{
 			m_VertexArray_Debug = std::make_shared<VertexArray>();
 			std::shared_ptr<VertexBuffer> vertex_buffer_debug_vertexnormal = std::make_shared<VertexBuffer>(m_MeshDataByVertexNormal.m_DebugNormalData.m_Vertexs.data(),
-				m_MeshDataByVertexNormal.m_DebugNormalData.m_Vertexs.size() * sizeof(float));
-			vertex_buffer_debug_vertexnormal->DescribeData({ { Float3,0 } });
+				static_cast<unsigned>(m_MeshDataByVertexNormal.m_DebugNormalData.m_Vertexs.size() * sizeof(float)));
+			vertex_buffer_debug_vertexnormal->DescribeData({ {DataType::Float3,0 } });
 			m_VertexArray_Debug->AddVertexBuffer(vertex_buffer_debug_vertexnormal);
 			m_BufferDisplayVtxNormalDebug = vertex_buffer_debug_vertexnormal;
 
-			std::shared_ptr<IndexBuffer> index_buffer_debug_vtx = std::make_shared<IndexBuffer>(m_MeshDataByVertexNormal.m_DebugNormalData.m_Vertexs.size());
+			std::shared_ptr<IndexBuffer> index_buffer_debug_vtx = std::make_shared<IndexBuffer>(static_cast<unsigned>(m_MeshDataByVertexNormal.m_DebugNormalData.m_Vertexs.size()));
 			m_VertexArray_Debug->AddIndexBuffer(index_buffer_debug_vtx);
 			m_IndexBufferDisplayVtxNormalDebug = index_buffer_debug_vtx;
 		}
@@ -264,11 +270,11 @@ namespace HS_Engine
 		if (!m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.empty())
 		{
 			std::shared_ptr<VertexBuffer> vertex_buffer_debug_facenormal = std::make_shared<VertexBuffer>(m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.data(),
-				m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.size() * sizeof(float));
-			vertex_buffer_debug_facenormal->DescribeData({ {Float3, 0} });
+				static_cast<unsigned>(m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.size() * sizeof(float)));
+			vertex_buffer_debug_facenormal->DescribeData({ {DataType::Float3, 0} });
 			m_BufferDisplayFaceNormalDebug = vertex_buffer_debug_facenormal;
 
-			std::shared_ptr<IndexBuffer> index_buffer_debug_face = std::make_shared<IndexBuffer>(m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.size());
+			std::shared_ptr<IndexBuffer> index_buffer_debug_face = std::make_shared<IndexBuffer>(static_cast<unsigned>(m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.size()));
 			m_IndexBufferDisplayFaceNormalDebug = index_buffer_debug_face;
 		}
 

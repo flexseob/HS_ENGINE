@@ -21,10 +21,10 @@ void HS_Engine::Context::Init()
 	{
 		std::cout << "Failed to init GLEW" << std::endl;
 	}
-
 	std::cout << "OpenGL Info :" << std::endl;
 	std::cout << "OpenGL Version :" << glGetString(GL_VERSION) << std::endl;
 	std::cout << "OpenGL Renderer:" << glGetString(GL_RENDERER) << std::endl;
+	std::cout << "-------------------------------------------------" << std::endl;
 }
 
 void HS_Engine::Context::SwapBuffer()

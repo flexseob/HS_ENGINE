@@ -17,6 +17,7 @@ namespace HS_Engine
 
 	void Engine::Init()
 	{
+		std::cout << "HS(HoSeob) Engine Init" <<  std::endl;
 		Render::Init();
 		Render::SetClearColor({ 1.f,1.f,0.f,1.f });
 		m_ImguiManager.ImguiInit();
@@ -43,6 +44,7 @@ namespace HS_Engine
 				m_Window->Update();
 				pastTime = nowTime;
 				m_SceneManager.Update(deltatime);
+				if(m_SceneManager.IsCurrentSceneRunning())
 				m_ImguiManager.ImguiUpdate(deltatime);
 				
 			}
@@ -56,6 +58,7 @@ namespace HS_Engine
 		m_SceneManager.Shutdown();
 		Render::Shutdown();
 		m_Window->Shutdown();
+		std::cout << "HS(HoSeob) Engine Shutdown" << std::endl;
 	}
 
 	void Engine::CleanUp()

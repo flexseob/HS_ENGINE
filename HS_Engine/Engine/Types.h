@@ -1,3 +1,4 @@
+
 #pragma once
 
 enum class E_RenderTypes
@@ -11,9 +12,9 @@ enum class E_RenderTypes
 enum class E_MeshTypes
 {
 	BY_PATHMESH,
-	BY_PRECEDURALMESH,
+	BY_PROCEDURALMESH,
 };
-enum class E_Preceduralmesh
+enum class E_Proceduralmesh
 {
 	NONE,
 	SPHERE,

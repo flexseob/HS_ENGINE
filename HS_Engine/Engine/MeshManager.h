@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <string>
@@ -12,11 +13,11 @@ namespace HS_Engine
 	public:
 		MeshManager() = default;
 		Mesh* AddMesh(std::string meshname,std::string path, E_RenderTypes render_types);
-		Mesh* AddMesh(std::string meshname, E_Preceduralmesh preceduralmesh, E_RenderTypes render_types);
+		Mesh* AddMesh(std::string meshname, E_Proceduralmesh preceduralmesh, E_RenderTypes render_types);
 		void DeleteMesh(std::string meshname);
 		void DeleteAllMesh();
 		Mesh* GetMesh(std::string meshname);
-		
+		std::unordered_map<std::string, Mesh*>& GetMeshes() { return mMeshdata; };
 
 
 	private:

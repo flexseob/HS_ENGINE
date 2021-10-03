@@ -11,6 +11,11 @@ void HS_Engine::Window::Update()
 		Engine::Instance().GetSceneManger().UnloadAll();
 		Engine::MakeDemoEnded();
 	}
+	if(glfwGetKey(m_window_data.m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	{
+		Engine::Instance().GetSceneManger().UnloadAll();
+		Engine::MakeDemoEnded();
+	}
 }
 
 void HS_Engine::Window::Init(const WindowProperties& window_properties)

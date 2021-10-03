@@ -1,3 +1,4 @@
+
 #include "OBJLoader.h"
 
 #include <chrono>
@@ -9,7 +10,7 @@
 #include <iostream>
 #include <unordered_set>
 
-#include "../Engine/Mesh/PreceduralMesh.hpp"
+#include "../Engine/Mesh/ProceduralMesh.h"
 
 namespace HS_Engine
 {
@@ -34,7 +35,7 @@ namespace HS_Engine
 			{
 				line = line.substr(0, pos);
 			}
-			Utils::trimString(line);
+
 			if (line.length() > 0)
 			{
 				std::istringstream lineStream(line);
@@ -82,12 +83,13 @@ namespace HS_Engine
 					}
 					if (parts.size() > 2)
 					{
-						ObjectLoader::ObjectVertex firstVert(parts[0], this);
-						for (int i = 2; i < parts.size(); i++)
+						ObjectLoader::ObjectVertex firstVert(this, parts[0]);
+						for (int i = 2; i < static_cast<int>(parts.size()); i++)
 						{
 							m_facesData.push_back(firstVert);
-							m_facesData.push_back(ObjectLoader::ObjectVertex(parts[i - 1], this));
-							m_facesData.push_back(ObjectLoader::ObjectVertex(parts[i], this));
+							int before = i - 1;
+							m_facesData.push_back(ObjectLoader::ObjectVertex( this, parts[before]));
+							m_facesData.push_back(ObjectLoader::ObjectVertex( this, parts[i]));
 						}
 					}
 				}
@@ -104,25 +106,25 @@ namespace HS_Engine
 		
 		}
 
-	void ObjectLoader::GenerateVertexNormalIfnotexist()
+	void ObjectLoader::GenerateVertexNormal()
 	{
 		if (m_NormalData.size() != 0) return;
 
 		m_NormalData.resize(m_VertexData.size());
 
 		std::unordered_map<unsigned int, std::vector<glm::vec3>> temp;
-		for (unsigned int i = 0; i < m_facesData.size(); i += 3)
+		for (size_t i = 0; i < m_facesData.size(); i += 3)
 		{
 			const glm::vec3& p1 = m_VertexData[m_facesData[i].m_pIdx];
-			const glm::vec3& p2 = m_VertexData[m_facesData[i + 1].m_pIdx];
-			const glm::vec3& p3 = m_VertexData[m_facesData[i + 2].m_pIdx];
+			const glm::vec3& p2 = m_VertexData[m_facesData[1 + i].m_pIdx];
+			const glm::vec3& p3 = m_VertexData[m_facesData[2 + i].m_pIdx];
 
 			glm::vec3 a = p2 - p1;
 			glm::vec3 b = p3 - p1;
 			//use cross product
 			glm::vec3 n = glm::normalize(glm::cross(a, b));
 			//n *= -1.f;
-			for(unsigned int j = i; j<i+3; j++)
+			for(size_t j = i; j<i+3; j++)
 			{
 				auto check = temp.find(m_facesData[j].m_pIdx);
 				if(check == temp.end())
@@ -149,8 +151,8 @@ namespace HS_Engine
 			}
 
 			m_facesData[i].m_nIdx = m_facesData[i].m_pIdx;
-			m_facesData[i + 1].m_nIdx = m_facesData[i + 1].m_pIdx;
-			m_facesData[i + 2].m_nIdx = m_facesData[i + 2].m_pIdx;
+			m_facesData[1 + i].m_nIdx = m_facesData[1 + i].m_pIdx;
+			m_facesData[2 + i].m_nIdx = m_facesData[2 + i].m_pIdx;
 		}
 		
 		//average
@@ -162,11 +164,12 @@ namespace HS_Engine
 	}
 
 
-	void ObjectLoader::ConvertToGLFormatMeshByFaceNormal(Mesh* mesh)
+	void ObjectLoader::ConvertDataFormatMeshByFaceNormal(Mesh* mesh)
 	{
 		mesh->ClearDataByFaceNormal();
 		int idx = 0;
-		for(int i = 0; i < m_facesData.size(); i += 3)
+		 HS_Engine::Mesh::MeshData& meshdata = mesh->m_MeshDataByFaceNormal;
+		for(size_t i = 0; i < m_facesData.size(); i += 3)
 		{
 			const glm::vec3& p1 = m_VertexData[m_facesData[i].m_pIdx];
 			const glm::vec3& p2 = m_VertexData[m_facesData[i + 1].m_pIdx];
@@ -179,70 +182,47 @@ namespace HS_Engine
 			
 			const glm::vec3 center_of_triangle = (p1 + p2 + p3) / 3.f;
 
-			mesh->m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.push_back(center_of_triangle.x);
-			mesh->m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.push_back(center_of_triangle.y);
-			mesh->m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.push_back(center_of_triangle.z);
+			meshdata.m_DebugNormalData.m_Vertexs.push_back(center_of_triangle.x);
+			meshdata.m_DebugNormalData.m_Vertexs.push_back(center_of_triangle.y);
+			meshdata.m_DebugNormalData.m_Vertexs.push_back(center_of_triangle.z);
 
-
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p1.x);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p1.y);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p1.z);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(n.x);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(n.y);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(n.z);
-
-
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p2.x);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p2.y);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p2.z);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(n.x);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(n.y);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(n.z);
-
-
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p3.x);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p3.y);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p3.z);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(n.x);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(n.y);
-			//mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(n.z);
 				
-			mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p1.x);
-			mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p1.y);
-			mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p1.z);
+			meshdata.m_Vertexs.push_back(p1.x);
+			meshdata.m_Vertexs.push_back(p1.y);
+			meshdata.m_Vertexs.push_back(p1.z);
 		
-			mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p2.x);
-			mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p2.y);
-			mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p2.z);
+			meshdata.m_Vertexs.push_back(p2.x);
+			meshdata.m_Vertexs.push_back(p2.y);
+			meshdata.m_Vertexs.push_back(p2.z);
 									
-			mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p3.x);
-			mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p3.y);
-			mesh->m_MeshDataByFaceNormal.m_Vertexs.push_back(p3.z);
+			meshdata.m_Vertexs.push_back(p3.x);
+			meshdata.m_Vertexs.push_back(p3.y);
+			meshdata.m_Vertexs.push_back(p3.z);
 
 			glm::vec3 normal_other_point = center_of_triangle;
 			normal_other_point += (n * mesh->GetDebugMagnitue());
 
-			mesh->m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.x);
-			mesh->m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.y);
-			mesh->m_MeshDataByFaceNormal.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.z);
+			meshdata.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.x);
+			meshdata.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.y);
+			meshdata.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.z);
 			
 			for(int j=0; j <3; ++j)
 			{
-				mesh->m_MeshDataByFaceNormal.m_Normals.push_back(n.x);
-				mesh->m_MeshDataByFaceNormal.m_Normals.push_back(n.y);
-				mesh->m_MeshDataByFaceNormal.m_Normals.push_back(n.z);
+				meshdata.m_Normals.push_back(n.x);
+				meshdata.m_Normals.push_back(n.y);
+				meshdata.m_Normals.push_back(n.z);
 			}
 
 			for(int t=0; t<3; t++)
 			{
-				mesh->m_MeshDataByFaceNormal.m_Faces.push_back(idx+t);
+				meshdata.m_Faces.push_back(idx+t);
 			}
 
 			idx += 3;
 		}
 	}
 
-	void ObjectLoader::ConvertToGLFormatMeshByVertexNormal(std::shared_ptr<Mesh> mesh)
+	void ObjectLoader::ConvertDataFormatMeshByVertexNormal(std::shared_ptr<Mesh> mesh)
 	{
 		mesh->ClearDataByVertexNormal();
 
@@ -254,7 +234,7 @@ namespace HS_Engine
 
 			if (iter == vertexMap.end()) 
 			{
-				unsigned vIdx = mesh->m_MeshDataByVertexNormal.m_Vertexs.size() / 3;
+				unsigned vIdx = static_cast<unsigned>(mesh->m_MeshDataByVertexNormal.m_Vertexs.size() / 3);
 				glm::vec3& vertex = m_VertexData[vert.m_pIdx];
 
 				mesh->m_MeshDataByVertexNormal.m_Vertexs.push_back(vertex.x);
@@ -266,9 +246,7 @@ namespace HS_Engine
 				mesh->m_MeshDataByVertexNormal.m_Normals.push_back(normal.y);
 				mesh->m_MeshDataByVertexNormal.m_Normals.push_back(normal.z);
 
-		/*		mesh->m_MeshDataByVertexNormal.m_Vertexs.push_back(normal.x);
-				mesh->m_MeshDataByVertexNormal.m_Vertexs.push_back(normal.y);
-				mesh->m_MeshDataByVertexNormal.m_Vertexs.push_back(normal.z);*/
+
 				if (m_TexData.empty() == false)
 				{
 					glm::vec2& texcoord = m_TexData[vert.m_tcIdx];
@@ -291,12 +269,12 @@ namespace HS_Engine
 		
 	}
 
-	void ObjectLoader::ConvertToGLFormatMeshByVertexNormal(Mesh* mesh)
+	void ObjectLoader::ConvertDataFormatMeshByVertexNormal(Mesh* mesh)
 	{
 		mesh->ClearDataByVertexNormal();
 
 		std::map<std::tuple<int, int, int>, unsigned int> vertexMap;
-		int i = 0;
+	
 		for (ObjectVertex& vert : m_facesData)
 		{
 			std::tuple<int, int, int> vertStr = vert.tupledata();
@@ -304,7 +282,7 @@ namespace HS_Engine
 
 			if (iter == vertexMap.end())
 			{
-				unsigned vIdx = mesh->m_MeshDataByVertexNormal.m_Vertexs.size() / 3;
+				unsigned vIdx = static_cast<unsigned>(mesh->m_MeshDataByVertexNormal.m_Vertexs.size() / 3);
 				auto& MeshData = mesh->m_MeshDataByVertexNormal;
 				
 				const glm::vec3& vertex = m_VertexData[vert.m_pIdx];
@@ -314,10 +292,6 @@ namespace HS_Engine
 				MeshData.m_Vertexs.push_back(vertex.z);
 
 				glm::vec3& normal = m_NormalData[vert.m_nIdx];
-			
-			/*	MeshData.m_Vertexs.push_back(normal.x);
-				MeshData.m_Vertexs.push_back(normal.y);
-				MeshData.m_Vertexs.push_back(normal.z);*/
 
 				MeshData.m_Normals.push_back(normal.x);
 				MeshData.m_Normals.push_back(normal.y);
@@ -353,21 +327,21 @@ namespace HS_Engine
 			{
 				mesh->m_MeshDataByVertexNormal.m_Faces.push_back(iter->second);
 			}
-			i++;
+			
 		}
 
 		
 	}
 
 
-	std::shared_ptr<Mesh> ObjectLoader::Load(std::string path, bool center)
+	std::shared_ptr<Mesh> ObjectLoader::Load(std::string path)
 	{
 		std::shared_ptr<Mesh> newmesh = std::make_shared<Mesh>();
 		auto startTime = std::chrono::high_resolution_clock::now();
 		LoadObjFile(path);
-		GenerateVertexNormalIfnotexist();
-		ConvertToGLFormatMeshByVertexNormal(newmesh);
-		newmesh->SetIndexBufferCount(m_facesData.size());
+		GenerateVertexNormal();
+		ConvertDataFormatMeshByVertexNormal(newmesh);
+		newmesh->SetIndexBufferCount(static_cast<unsigned>(m_facesData.size()));
 		
 		auto endTime = std::chrono::high_resolution_clock::now();
 
@@ -380,15 +354,15 @@ namespace HS_Engine
 		return newmesh;
 	}
 
-	Mesh* ObjectLoader::Load_raw_ptr(std::string path, bool center)
+	Mesh* ObjectLoader::Load_raw_ptr(std::string path)
 	{
 		Mesh* newmesh = new Mesh();
 		auto startTime = std::chrono::high_resolution_clock::now();
 		LoadObjFile(path);
-		GenerateVertexNormalIfnotexist();
-		ConvertToGLFormatMeshByFaceNormal(newmesh);
-		ConvertToGLFormatMeshByVertexNormal(newmesh);
-		newmesh->SetIndexBufferCount(m_facesData.size());
+		GenerateVertexNormal();
+		ConvertDataFormatMeshByFaceNormal(newmesh);
+		ConvertDataFormatMeshByVertexNormal(newmesh);
+		newmesh->SetIndexBufferCount(static_cast<unsigned>(m_facesData.size()));
 		ClearObjectData();
 
 		auto endTime = std::chrono::high_resolution_clock::now();
@@ -402,13 +376,6 @@ namespace HS_Engine
 		return newmesh;
 	}
 
-	Mesh* ObjectLoader::Load_raw_ptr_new(std::string path, bool center)
-	{
-		Mesh* newmesh = new Mesh();
-		auto startTime = std::chrono::high_resolution_clock::now();
-		LoadObjFile(path);
-		return nullptr;
-	}
 
 	void ObjectLoader::ClearObjectData()
 	{
@@ -421,22 +388,22 @@ namespace HS_Engine
 	}
 
 
-	ObjectLoader::ObjectVertex::ObjectVertex(std::string& vertexStr, ObjectLoader* data) : m_pIdx(-1), m_nIdx(-1), m_tcIdx(-1)
+	ObjectLoader::ObjectVertex::ObjectVertex( ObjectLoader* data,std::string& vertexStr) : m_pIdx(-1), m_nIdx(-1), m_tcIdx(-1)
 	{
 		
 		// vertex/tex/nor
 		// num/num/num
-		unsigned slash1;
-		unsigned slash2;
+		size_t slash1;
+		size_t slash2;
 		slash1 = vertexStr.find("/");
 		m_pIdx = std::stoi(vertexStr.substr(0, slash1));
 		if (m_pIdx < 0)
 		{
-			m_pIdx += data->m_VertexData.size();
+			m_pIdx += static_cast<int>(data->m_VertexData.size());
 		}
 		else
 		{
-			// array buffer begin at 0
+			// array buffer begin at 0 but obj file start 1
 			m_pIdx--;
 		}
 		if (slash1 != std::string::npos)
@@ -448,7 +415,7 @@ namespace HS_Engine
 				m_tcIdx = std::stoi(vertexStr.substr(slash1 + 1, slash2 - slash1 - 1));
 				if (m_tcIdx < 0)
 				{
-					m_tcIdx += data->m_TexData.size();
+					m_tcIdx += static_cast<int>(data->m_TexData.size());
 				}
 				else
 				{
@@ -459,7 +426,7 @@ namespace HS_Engine
 			m_nIdx = std::stoi(vertexStr.substr(slash2 + 1));
 			if (m_nIdx < 0)
 			{
-				m_nIdx += data->m_NormalData.size();
+				m_nIdx += static_cast<int>(data->m_NormalData.size());
 			}
 			else
 			{
@@ -470,22 +437,7 @@ namespace HS_Engine
 
 	}
 
-	bool ObjectLoader::CheckOutofNDCFormat()
-	{
-		if (m_min.x < -1.f || m_max.x > 1.f)
-		{
-			return false;
-		}
-		else if (m_min.y < -1.f || m_max.y > 1.f)
-		{
-			return false;
-		}
-		else if (m_min.z < -1.f || m_max.z > 1.f)
-		{
-			return false;
-		}
-		return true;
-	}
+
 	
 	void ObjectLoader::AdjustRange()
 	{

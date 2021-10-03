@@ -1,5 +1,4 @@
 
-
 #include "Buffer.h"
 
 namespace HS_Engine
@@ -76,7 +75,6 @@ namespace HS_Engine
 
 	VertexBuffer::VertexBuffer(unsigned size)
 	{
-		//glCreateBuffers(1, &m_Render_ID);
 		glGenBuffers(1, &m_Render_ID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_Render_ID);
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
@@ -84,7 +82,6 @@ namespace HS_Engine
 
 	VertexBuffer::VertexBuffer(float* vertices, unsigned size)
 	{
-		//glCreateBuffers(1, &m_Render_ID);
 		glGenBuffers(1, &m_Render_ID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_Render_ID);
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);

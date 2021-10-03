@@ -18,6 +18,7 @@ namespace HS_Engine
 		void UnloadAll();
 		void ReloadScene();
 		bool HasAllSceneEnded() { return m_Scene == e_Scene::EXIT; }
+		bool IsCurrentSceneRunning() { return m_Scene == e_Scene::RUNNING; }
 		Scene* GetCurrentScene();
 		void Update(double dt);
 

@@ -1,5 +1,4 @@
 
-
 #include "Material.h"
 
 #include <fstream>
@@ -16,7 +15,22 @@ namespace HS_Engine
 		m_diffuse = material.m_diffuse;
 		m_specular = material.m_specular;
 		m_shininess = material.m_shininess;
+		m_MaterialName = material.m_MaterialName;
+	}
+
+	Material& Material::operator=(const Material& material)
+	{
+		if (this == &material)
+		{
+			return *this;
+		}
+		m_ambient = material.m_ambient;
+		m_diffuse = material.m_diffuse;
+		m_specular = material.m_specular;
+		m_shininess = material.m_shininess;
+		m_MaterialName = material.m_MaterialName;
 		
+		return *this;
 	}
 
 	glm::vec3 Material::GetAmbient() const
@@ -37,5 +51,10 @@ namespace HS_Engine
 	float Material::GetShinness() const
 	{
 		return m_shininess;
+	}
+
+	std::string Material::GetMaterialName() const
+	{
+		return m_MaterialName;
 	}
 }

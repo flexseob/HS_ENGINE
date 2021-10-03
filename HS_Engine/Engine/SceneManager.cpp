@@ -62,7 +62,9 @@ namespace HS_Engine
 		case e_Scene::LOAD:
 		{
 				m_CurrentScene = m_NextScene;
+				std::cout << "CurrentScene : " + m_CurrentScene->GetSceneName() + " is Loading!" << std::endl;
 				m_CurrentScene->Load();
+				std::cout << "CurrentScene : " + m_CurrentScene->GetSceneName() + " is Loaded!" << std::endl;
 				m_Scene = e_Scene::RUNNING;
 				break;
 		}
@@ -82,6 +84,7 @@ namespace HS_Engine
 
 		case e_Scene::UNLOAD:
 		{
+			std::cout << "CurrentScene : " + m_CurrentScene->GetSceneName() + " is UnLoaded!" << std::endl;
 			m_CurrentScene->UnLoad();
 
 			if (m_NextScene == nullptr)

@@ -1,5 +1,4 @@
 
-
 #include "VertexArrayData.h"
 #include "Buffer.h"
 
@@ -76,14 +75,12 @@ namespace  HS_Engine
 		glBindVertexArray(m_VertexArrayID);
 		for(auto& vertex_buffer : m_VertexBuffers)
 		{
-			//vertex_buffer->Bind();
 			const auto& described_Data = vertex_buffer->GetDescribedData();
 			for (const auto& element : described_Data)
 			{
 				glDisableVertexAttribArray(element.m_LayoutLocation);
 			}
 		}
-		//glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 		m_VertexBuffers.clear();
 	}

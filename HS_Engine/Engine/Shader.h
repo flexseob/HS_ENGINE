@@ -35,7 +35,6 @@ namespace HS_Engine
 
 		// 0 :vert 1:frag 2:geom
 		std::vector<unsigned int> m_ShaderIDs;
-		//std::vector<unsigned int> m_UniformIDs;
 		std::unordered_map<unsigned int, std::string> m_UniformIDs;
 	};
 

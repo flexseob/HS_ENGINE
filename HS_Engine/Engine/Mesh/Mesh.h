@@ -1,3 +1,4 @@
+
 #pragma once
 #include <functional>
 #include <memory>
@@ -35,6 +36,13 @@ namespace HS_Engine
 		void SetCheckFlag();
 		void SetRenderType(E_RenderTypes types);
 		void SetDebugMangitue(float magnitue);
+		void SetMeshName(std::string name);
+
+		std::string GetMeshName() const
+		{
+			return m_Meshname;
+		}
+
 		const float GetDebugMagnitue() const;
 		struct MeshData
 		{
@@ -54,6 +62,7 @@ namespace HS_Engine
 
 		
 		E_NormalTypes GetNormalType() const;
+		bool m_IsFaceNormalDebug = false;
 	private:
 		void SetNormalTypes(E_NormalTypes normal_types);
 		
@@ -73,8 +82,9 @@ namespace HS_Engine
 		std::shared_ptr<IndexBuffer> m_IndexBufferDisplayFaceNormalDebug;
 		bool m_CheckFlag = true;
 		bool m_IsFaceNormalRender = false;
-		bool m_IsFaceNormalDebug = false;
 		float m_DebugMagntite = 0.05f;
+
+		std::string m_Meshname = "";
 		
 		E_RenderTypes m_RenderType = E_RenderTypes::NONE;
 		E_NormalTypes m_NormalType = E_NormalTypes::VERTEX;

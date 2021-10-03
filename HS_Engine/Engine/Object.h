@@ -1,3 +1,4 @@
+
 #pragma once
 #include <functional>
 #include <string>
@@ -14,7 +15,7 @@ namespace HS_Engine
 	public:
 		struct ObjectData;
 		Object(std::string objectname,std::string meshname ,std::string path,E_MeshTypes meshtype, E_RenderTypes rendertype);
-		Object(std::string objectname, std::string meshname, E_MeshTypes meshtype,E_Preceduralmesh preceduralmeshtype, E_RenderTypes rendertype);
+		Object(std::string objectname, std::string meshname, E_MeshTypes meshtype,E_Proceduralmesh preceduralmeshtype, E_RenderTypes rendertype);
 		Object(std::string objectname, Object* object);
 
 		void Init();
@@ -22,7 +23,7 @@ namespace HS_Engine
 		std::string GetMeshName() const;
 		std::string GetObjPath() const;
 		E_MeshTypes GetMeshType() const;
-		E_Preceduralmesh GetPreceduralmeshType() const;
+		E_Proceduralmesh GetPreceduralmeshType() const;
 		E_RenderTypes GetRenderType() const;
 		
 		void SetShader(std::shared_ptr<Shader> shader);
@@ -43,13 +44,16 @@ namespace HS_Engine
 
 		Mesh* GetMesh() const;
 		ObjectData& GetObjData();
-
+		std::string GetMaterialName() const
+		{
+			return m_Materialname;
+		}
 		void PreRender();
 		void Render();
 		void PostRender(double dt);
 
-
-		std::function<void(double)> pre_render_function = nullptr;
+		void SetPostRenderFunction(std::function<void(double)> function);
+		std::function<void(double)> m_PostRenderFunction = nullptr;
 		float count = 0;
 	private:
 		Object(const Object& object);
@@ -72,17 +76,20 @@ namespace HS_Engine
 		
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shader_debug;
+
 		E_MeshTypes m_MeshType;
 		E_RenderTypes m_RenderType;
-		E_Preceduralmesh m_PreceduralmeshType =E_Preceduralmesh::NONE;
+		E_Proceduralmesh m_PreceduralmeshType =E_Proceduralmesh::NONE;
+
 		std::string m_Objname;
 		std::string m_Meshname;
+		std::string m_Materialname;
 		std::string m_path;
 		ObjectData m_ObjData;
 		Mesh* m_mesh = nullptr;
 		bool m_IsDisplayDebug = false;
 		glm::mat4 m_DebugMat;
-		//std::function<void> mPostRenderFunction = nullptr;
+
 		
 	};
 
