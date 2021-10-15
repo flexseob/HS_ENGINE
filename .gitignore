@@ -61,3 +61,4 @@ HS_Engine/x64/Debug/HS_Engine.tlog/CL.read.1.tlog
 HS_Engine/x64/Debug/HS_Engine.tlog/CL.command.1.tlog
 HS_Engine/x64/Debug/HS_Engine.log
 HS_Engine/x64/Debug/HS_Engine.Build.CppClean.log
+*.ipch

@@ -1,4 +1,3 @@
-
 #include "Shader.h"
 #include <fstream>
 #include <iostream>
@@ -11,7 +10,8 @@ namespace HS_Engine
 		m_ShaderID = glCreateProgram();
 		m_ShaderIDs.resize(2);
 		GLint comp_result;
-		
+
+
 		std::ifstream vert_stream(vert);
 		std::string vert_src;
 
@@ -31,7 +31,7 @@ namespace HS_Engine
 		{
 			throw std::runtime_error("Cannot open vertex shader source file!");
 		}
-		  
+		m_ShaderPath.push_back({ E_ShaderTypes::VERTEX,vert });
 		const char* vert_cstring = vert_src.c_str();
 		m_ShaderIDs[0] = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(m_ShaderIDs[0], 1, &vert_cstring, nullptr);
@@ -42,8 +42,9 @@ namespace HS_Engine
 		{
 			std::cout << "vertex shader compilation failed\n";
 		}
-		
+
 		std::ifstream frag_stream(frag);
+
 		std::string frag_src;
 
 		if (frag_stream.is_open())
@@ -67,13 +68,13 @@ namespace HS_Engine
 		m_ShaderIDs[1] = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(m_ShaderIDs[1], 1, &frag_cstring, nullptr);
 		glCompileShader(m_ShaderIDs[1]);
-		
+
 		glGetShaderiv(m_ShaderIDs[1], GL_COMPILE_STATUS, &comp_result);
 		if (GL_FALSE == comp_result)
 		{
 			std::cout << "fragment shader compilation failed\n";
 		}
-
+		m_ShaderPath.push_back({ E_ShaderTypes::FRAGMENT,frag });
 	}
 
 
@@ -82,7 +83,7 @@ namespace HS_Engine
 		m_ShaderID = glCreateProgram();
 		m_ShaderIDs.resize(3);
 		GLint comp_result;
-		
+
 		std::ifstream vert_stream(vert);
 		std::string vert_src;
 		if (vert_stream.is_open())
@@ -107,14 +108,14 @@ namespace HS_Engine
 		glShaderSource(m_ShaderIDs[0], 1, &vert_cstring, 0);
 		glCompileShader(m_ShaderIDs[0]);
 
-		
+
 		glGetShaderiv(m_ShaderIDs[0], GL_COMPILE_STATUS, &comp_result);
 		if (GL_FALSE == comp_result)
 		{
 			std::cout << "vertex shader compilation failed\n";
 		}
+		m_ShaderPath.push_back({ E_ShaderTypes::VERTEX,vert });
 
-		
 		std::ifstream frag_stream(frag);
 		std::string frag_src;
 		if (frag_stream.is_open())
@@ -139,7 +140,7 @@ namespace HS_Engine
 		glShaderSource(m_ShaderIDs[1], 1, &frag_cstring, 0);
 		glCompileShader(m_ShaderIDs[1]);
 
-		
+
 		glGetShaderiv(m_ShaderIDs[1], GL_COMPILE_STATUS, &comp_result);
 		if (GL_FALSE == comp_result)
 		{
@@ -184,7 +185,7 @@ namespace HS_Engine
 			std::cout << "vertex shader compilation failed\n";
 		}
 
-
+		m_ShaderPath.push_back({ E_ShaderTypes::GEOMERTY,geom });
 
 	}
 
@@ -212,6 +213,7 @@ namespace HS_Engine
 		{
 			throw std::runtime_error("Cannot open vertex shader source file!");
 		}
+		m_ShaderPath.push_back({ E_ShaderTypes::VERTEX , vert });
 
 		const char* vert_cstring = vert_src.c_str();
 		m_ShaderIDs[0] = glCreateShader(GL_VERTEX_SHADER);
@@ -250,6 +252,7 @@ namespace HS_Engine
 			throw std::runtime_error("Cannot open tess_control shader source file!");
 		}
 
+
 		const char* tesc_cstring = tesc_src.c_str();
 		m_ShaderIDs[1] = glCreateShader(GL_TESS_CONTROL_SHADER);
 		glShaderSource(m_ShaderIDs[1], 1, &tesc_cstring, 0);
@@ -260,7 +263,7 @@ namespace HS_Engine
 		{
 			std::cout << "tess_control shader compilation failed\n";
 		}
-
+		m_ShaderPath.push_back({ E_ShaderTypes::TESC , tesc });
 
 
 		std::ifstream tese_stream(tese);
@@ -292,6 +295,7 @@ namespace HS_Engine
 		{
 			std::cout << "tess_evaluation shader compilation failed\n";
 		}
+		m_ShaderPath.push_back({ E_ShaderTypes::TESE , tese });
 
 		std::ifstream geom_stream(geom);
 		std::string geom_src;
@@ -322,7 +326,7 @@ namespace HS_Engine
 		{
 			std::cout << "geometry shader compilation failed\n";
 		}
-		
+		m_ShaderPath.push_back({ E_ShaderTypes::GEOMERTY , geom });
 
 		std::ifstream frag_stream(frag);
 		std::string frag_src;
@@ -354,13 +358,13 @@ namespace HS_Engine
 		{
 			std::cout << "fragment shader compilation failed\n";
 		}
-
-	
-
+		m_ShaderPath.push_back({ E_ShaderTypes::FRAGMENT , frag });
 
 
 
-		
+
+
+
 	}
 
 	Shader::~Shader()
@@ -369,18 +373,18 @@ namespace HS_Engine
 		glDeleteShader(m_ShaderID);
 	}
 
-	
 
-	
+
+
 	void Shader::LinkShader()
 	{
 
 
-		for(auto& shader : m_ShaderIDs)
+		for (auto& shader : m_ShaderIDs)
 		{
 			glAttachShader(m_ShaderID, shader);
 		}
-		
+
 
 		glLinkProgram(m_ShaderID);
 		GLint lnk_log;
@@ -394,13 +398,13 @@ namespace HS_Engine
 		}
 		GLint lnk_status;
 		glGetProgramiv(m_ShaderID, GL_LINK_STATUS, &lnk_status);
-		if (GL_FALSE == lnk_status) 
+		if (GL_FALSE == lnk_status)
 		{
 			std::cerr << "Failed to link shader program\n";
 			glGetProgramInfoLog(m_ShaderID, lnk_log, NULL, error_log);
 			std::cout << error_log << std::endl;
 		}
-		
+
 		glValidateProgram(m_ShaderID);
 		GLint is_validate = 0;
 		glGetProgramiv(m_ShaderID, GL_VALIDATE_STATUS, &is_validate);
@@ -412,6 +416,64 @@ namespace HS_Engine
 			glGetProgramInfoLog(m_ShaderID, log_length, nullptr, error.data());
 			throw std::runtime_error(std::string(error.begin(), error.end()));
 		}
+
+
+	}
+
+	void Shader::CompileShader(E_ShaderTypes shadertype, const std::string& path)
+	{
+		int shaderMacro = 0;
+		switch (shadertype)
+		{
+		case E_ShaderTypes::VERTEX:
+			shaderMacro = GL_VERTEX_SHADER;
+			break;
+		case E_ShaderTypes::FRAGMENT:
+			shaderMacro = GL_FRAGMENT_SHADER;
+			break;
+		case E_ShaderTypes::GEOMERTY:
+			shaderMacro = GL_GEOMETRY_SHADER;
+			break;
+		case E_ShaderTypes::TESE:
+			shaderMacro = GL_TESS_EVALUATION_SHADER;
+			break;
+		case E_ShaderTypes::TESC:
+			shaderMacro = GL_TESS_CONTROL_SHADER;
+			break;
+		}
+
+		GLint comp_result;
+		std::ifstream shader_stream(path);
+		std::string shader_src;
+
+		if (shader_stream.is_open())
+		{
+			shader_stream.seekg(0, std::ios::end);
+
+			int size = static_cast<int>(shader_stream.tellg());
+
+			shader_src.resize(size);
+
+			shader_stream.seekg(0, std::ios::beg);
+
+			shader_stream.read(shader_src.data(), size);
+		}
+		else
+		{
+			throw std::runtime_error("Cannot open vertex shader source file!");
+		}
+
+		const char* vert_cstring = shader_src.c_str();
+		unsigned shader_id = glCreateShader(shaderMacro);
+		glShaderSource(shader_id, 1, &vert_cstring, nullptr);
+		glCompileShader(shader_id);
+
+		glGetShaderiv(shader_id, GL_COMPILE_STATUS, &comp_result);
+		if (GL_FALSE == comp_result)
+		{
+			std::cout << "vertex shader compilation failed\n";
+		}
+		m_ShaderIDs.push_back(shader_id);
 
 
 	}
@@ -436,7 +498,7 @@ namespace HS_Engine
 		{
 			if (uniformid.second == variable)
 			{
-				glUniform2f(uniformid.first, vec2.x,vec2.y);
+				glUniform2f(uniformid.first, vec2.x, vec2.y);
 				return;
 			}
 		}
@@ -455,7 +517,7 @@ namespace HS_Engine
 		}
 		std::cout << variable << " is not exist!" << std::endl;
 	}
-	
+
 
 
 	void Shader::BindUniformVariable(const std::string& variable, const glm::mat4& matrix)
@@ -486,7 +548,7 @@ namespace HS_Engine
 
 
 	}
-	
+
 	void Shader::BindUniformVariable(const std::string& variable, int int_value)
 	{
 		for (auto& uniformid : m_UniformIDs)
@@ -497,7 +559,7 @@ namespace HS_Engine
 				return;
 			}
 		}
-		
+
 	}
 
 	void Shader::BindUniformVariable(const std::string& variable, bool bool_value)
@@ -510,6 +572,30 @@ namespace HS_Engine
 				return;
 			}
 		}
+	}
+
+	void Shader::ReloadShader()
+	{
+		glDeleteProgram(m_ShaderID);
+		m_ShaderIDs.clear();
+		m_ShaderID = glCreateProgram();
+
+		for (auto& shader : m_ShaderPath)
+		{
+			CompileShader(shader.first, shader.second);
+		}
+		LinkShader();
+
+		//change the uniform variable
+		std::unordered_map<unsigned, std::string> temp_uniform_ids;
+		for (auto& uniformid : m_UniformIDs)
+		{
+			unsigned uniformlocate = glGetUniformLocation(m_ShaderID, uniformid.second.c_str());
+			temp_uniform_ids.insert(std::pair<unsigned, std::string>(uniformlocate, uniformid.second));
+		}
+
+		m_UniformIDs.clear();
+		m_UniformIDs = temp_uniform_ids;
 	}
 
 	void Shader::Bind() const
@@ -583,24 +669,24 @@ namespace HS_Engine
 		}
 		}
 
-		std::cerr << variable <<" : "<< error << "\n   " << description << "\n\n";
+		std::cerr << variable << " : " << error << "\n   " << description << "\n\n";
 	}
 
 
-	
+
 	//Find UniformLocation if it didn't add uniform ID, it will add the uniform ID
 	unsigned Shader::FindUniformLocation(const std::string& name)
 	{
-		for(auto& uniformid : m_UniformIDs)
+		for (auto& uniformid : m_UniformIDs)
 		{
-			if(uniformid.second == name)
+			if (uniformid.second == name)
 			{
 				return uniformid.first;
 			}
 		}
 		unsigned uniformlocate = glGetUniformLocation(m_ShaderID, name.c_str());
 		m_UniformIDs.insert(std::pair<unsigned, std::string>(uniformlocate, name));
-		
+
 		return uniformlocate;
 	}
 }
