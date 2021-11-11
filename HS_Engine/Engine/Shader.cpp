@@ -1,3 +1,16 @@
+/* Start Header-------------------------------------------------------
+Copyright(C) < 2021 > DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written
+consent of DigiPen Institute of Technology is prohibited.
+File Name : Shader.cpp
+Purpose : Shader class source file
+Language : C++, Microsoft Visual C++
+Platform : <Microsoft Visual C++ 19.29.30037, hardware requirements, Windows 10>
+Project : <h.jeong_CS300_1>
+Author : <Hoseob Jeong, h.jeong, 180002521>
+Creation date : <09 / 11 / 21>
+End Header-------------------------------------------------------- */
+
 #include "Shader.h"
 #include <fstream>
 #include <iostream>
@@ -31,7 +44,7 @@ namespace HS_Engine
 		{
 			throw std::runtime_error("Cannot open vertex shader source file!");
 		}
-		m_ShaderPath.push_back({ E_ShaderTypes::VERTEX,vert });
+		m_ShaderPath.push_back({E_ShaderTypes::VERTEX,vert });
 		const char* vert_cstring = vert_src.c_str();
 		m_ShaderIDs[0] = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(m_ShaderIDs[0], 1, &vert_cstring, nullptr);
@@ -42,9 +55,9 @@ namespace HS_Engine
 		{
 			std::cout << "vertex shader compilation failed\n";
 		}
-
+		
 		std::ifstream frag_stream(frag);
-
+	
 		std::string frag_src;
 
 		if (frag_stream.is_open())
@@ -68,13 +81,13 @@ namespace HS_Engine
 		m_ShaderIDs[1] = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(m_ShaderIDs[1], 1, &frag_cstring, nullptr);
 		glCompileShader(m_ShaderIDs[1]);
-
+		
 		glGetShaderiv(m_ShaderIDs[1], GL_COMPILE_STATUS, &comp_result);
 		if (GL_FALSE == comp_result)
 		{
 			std::cout << "fragment shader compilation failed\n";
 		}
-		m_ShaderPath.push_back({ E_ShaderTypes::FRAGMENT,frag });
+		m_ShaderPath.push_back({E_ShaderTypes::FRAGMENT,frag });
 	}
 
 
@@ -83,7 +96,7 @@ namespace HS_Engine
 		m_ShaderID = glCreateProgram();
 		m_ShaderIDs.resize(3);
 		GLint comp_result;
-
+		
 		std::ifstream vert_stream(vert);
 		std::string vert_src;
 		if (vert_stream.is_open())
@@ -108,14 +121,14 @@ namespace HS_Engine
 		glShaderSource(m_ShaderIDs[0], 1, &vert_cstring, 0);
 		glCompileShader(m_ShaderIDs[0]);
 
-
+		
 		glGetShaderiv(m_ShaderIDs[0], GL_COMPILE_STATUS, &comp_result);
 		if (GL_FALSE == comp_result)
 		{
 			std::cout << "vertex shader compilation failed\n";
 		}
 		m_ShaderPath.push_back({ E_ShaderTypes::VERTEX,vert });
-
+		
 		std::ifstream frag_stream(frag);
 		std::string frag_src;
 		if (frag_stream.is_open())
@@ -140,7 +153,7 @@ namespace HS_Engine
 		glShaderSource(m_ShaderIDs[1], 1, &frag_cstring, 0);
 		glCompileShader(m_ShaderIDs[1]);
 
-
+		
 		glGetShaderiv(m_ShaderIDs[1], GL_COMPILE_STATUS, &comp_result);
 		if (GL_FALSE == comp_result)
 		{
@@ -252,7 +265,7 @@ namespace HS_Engine
 			throw std::runtime_error("Cannot open tess_control shader source file!");
 		}
 
-
+		
 		const char* tesc_cstring = tesc_src.c_str();
 		m_ShaderIDs[1] = glCreateShader(GL_TESS_CONTROL_SHADER);
 		glShaderSource(m_ShaderIDs[1], 1, &tesc_cstring, 0);
@@ -359,12 +372,12 @@ namespace HS_Engine
 			std::cout << "fragment shader compilation failed\n";
 		}
 		m_ShaderPath.push_back({ E_ShaderTypes::FRAGMENT , frag });
+	
 
 
 
 
-
-
+		
 	}
 
 	Shader::~Shader()
@@ -373,18 +386,18 @@ namespace HS_Engine
 		glDeleteShader(m_ShaderID);
 	}
 
+	
 
-
-
+	
 	void Shader::LinkShader()
 	{
 
 
-		for (auto& shader : m_ShaderIDs)
+		for(auto& shader : m_ShaderIDs)
 		{
 			glAttachShader(m_ShaderID, shader);
 		}
-
+		
 
 		glLinkProgram(m_ShaderID);
 		GLint lnk_log;
@@ -398,13 +411,13 @@ namespace HS_Engine
 		}
 		GLint lnk_status;
 		glGetProgramiv(m_ShaderID, GL_LINK_STATUS, &lnk_status);
-		if (GL_FALSE == lnk_status)
+		if (GL_FALSE == lnk_status) 
 		{
 			std::cerr << "Failed to link shader program\n";
 			glGetProgramInfoLog(m_ShaderID, lnk_log, NULL, error_log);
 			std::cout << error_log << std::endl;
 		}
-
+		
 		glValidateProgram(m_ShaderID);
 		GLint is_validate = 0;
 		glGetProgramiv(m_ShaderID, GL_VALIDATE_STATUS, &is_validate);
@@ -423,25 +436,31 @@ namespace HS_Engine
 	void Shader::CompileShader(E_ShaderTypes shadertype, const std::string& path)
 	{
 		int shaderMacro = 0;
-		switch (shadertype)
+		std::string type;
+		switch(shadertype)
 		{
 		case E_ShaderTypes::VERTEX:
 			shaderMacro = GL_VERTEX_SHADER;
+			type = "Vertex";
 			break;
 		case E_ShaderTypes::FRAGMENT:
 			shaderMacro = GL_FRAGMENT_SHADER;
+			type = "Fragment";
 			break;
 		case E_ShaderTypes::GEOMERTY:
 			shaderMacro = GL_GEOMETRY_SHADER;
+			type = "Geometry";
 			break;
 		case E_ShaderTypes::TESE:
 			shaderMacro = GL_TESS_EVALUATION_SHADER;
+			type = "TessEvaluation";
 			break;
 		case E_ShaderTypes::TESC:
 			shaderMacro = GL_TESS_CONTROL_SHADER;
+			type = "TessControl";
 			break;
 		}
-
+		
 		GLint comp_result;
 		std::ifstream shader_stream(path);
 		std::string shader_src;
@@ -460,7 +479,7 @@ namespace HS_Engine
 		}
 		else
 		{
-			throw std::runtime_error("Cannot open vertex shader source file!");
+			throw std::runtime_error("Cannot open "+ type+" shader source file!");
 		}
 
 		const char* vert_cstring = shader_src.c_str();
@@ -471,11 +490,11 @@ namespace HS_Engine
 		glGetShaderiv(shader_id, GL_COMPILE_STATUS, &comp_result);
 		if (GL_FALSE == comp_result)
 		{
-			std::cout << "vertex shader compilation failed\n";
+			std::cout << type + " shader compilation failed\n";
 		}
 		m_ShaderIDs.push_back(shader_id);
 
-
+		
 	}
 
 	void Shader::BindUniformVariable(const std::string& variable, float floating_value)
@@ -498,7 +517,7 @@ namespace HS_Engine
 		{
 			if (uniformid.second == variable)
 			{
-				glUniform2f(uniformid.first, vec2.x, vec2.y);
+				glUniform2f(uniformid.first, vec2.x,vec2.y);
 				return;
 			}
 		}
@@ -517,7 +536,7 @@ namespace HS_Engine
 		}
 		std::cout << variable << " is not exist!" << std::endl;
 	}
-
+	
 
 
 	void Shader::BindUniformVariable(const std::string& variable, const glm::mat4& matrix)
@@ -548,9 +567,10 @@ namespace HS_Engine
 
 
 	}
-
+	
 	void Shader::BindUniformVariable(const std::string& variable, int int_value)
 	{
+		
 		for (auto& uniformid : m_UniformIDs)
 		{
 			if (uniformid.second == variable)
@@ -559,7 +579,7 @@ namespace HS_Engine
 				return;
 			}
 		}
-
+		
 	}
 
 	void Shader::BindUniformVariable(const std::string& variable, bool bool_value)
@@ -579,10 +599,10 @@ namespace HS_Engine
 		glDeleteProgram(m_ShaderID);
 		m_ShaderIDs.clear();
 		m_ShaderID = glCreateProgram();
-
-		for (auto& shader : m_ShaderPath)
+		
+		for(auto& shader : m_ShaderPath)
 		{
-			CompileShader(shader.first, shader.second);
+			CompileShader(shader.first,shader.second);
 		}
 		LinkShader();
 
@@ -593,7 +613,7 @@ namespace HS_Engine
 			unsigned uniformlocate = glGetUniformLocation(m_ShaderID, uniformid.second.c_str());
 			temp_uniform_ids.insert(std::pair<unsigned, std::string>(uniformlocate, uniformid.second));
 		}
-
+		
 		m_UniformIDs.clear();
 		m_UniformIDs = temp_uniform_ids;
 	}
@@ -669,24 +689,46 @@ namespace HS_Engine
 		}
 		}
 
-		std::cerr << variable << " : " << error << "\n   " << description << "\n\n";
+		std::cerr << variable <<" : "<< error << "\n   " << description << "\n\n";
 	}
 
 
-
+	
 	//Find UniformLocation if it didn't add uniform ID, it will add the uniform ID
 	unsigned Shader::FindUniformLocation(const std::string& name)
 	{
-		for (auto& uniformid : m_UniformIDs)
+		for(auto& uniformid : m_UniformIDs)
 		{
-			if (uniformid.second == name)
+			if(uniformid.second == name)
 			{
 				return uniformid.first;
 			}
 		}
 		unsigned uniformlocate = glGetUniformLocation(m_ShaderID, name.c_str());
 		m_UniformIDs.insert(std::pair<unsigned, std::string>(uniformlocate, name));
-
+		
 		return uniformlocate;
+	}
+
+	unsigned Shader::FindUniformBlockIndex(const std::string& name)
+	{
+		for (auto& uniformid : m_UniformBlockID)
+		{
+			if (uniformid.second == name)
+			{
+				return uniformid.first;
+			}
+		}
+		unsigned uniformindex = glGetUniformBlockIndex(m_ShaderID, name.c_str());
+		m_UniformBlockID.insert(std::pair<unsigned, std::string>(uniformindex, name));
+
+		return uniformindex;
+	}
+
+	int Shader::GetUnformSizeByLocation(unsigned index)
+	{
+		GLint blocksize;
+		glGetActiveUniformBlockiv(m_ShaderID, index, GL_UNIFORM_BLOCK_DATA_SIZE, &blocksize);
+		return blocksize;
 	}
 }

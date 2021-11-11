@@ -1,5 +1,18 @@
-
+/* Start Header-------------------------------------------------------
+Copyright(C) < 2021 > DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written
+consent of DigiPen Institute of Technology is prohibited.
+File Name : Object.cpp
+Purpose : Object class source file
+Language : C++, Microsoft Visual C++
+Platform : <Microsoft Visual C++ 19.29.30037, hardware requirements, Windows 10>
+Project : <h.jeong_CS300_1>
+Author : <Hoseob Jeong, h.jeong, 180002521>
+Creation date : <09 / 11 / 21>
+End Header-------------------------------------------------------- */
 #include "Object.h"
+
+#include "Light.h"
 #include "Shader.h"
 
 namespace HS_Engine
@@ -24,10 +37,20 @@ namespace HS_Engine
 	void Object::Init()
 	{
 		if (!m_shader) return;
-		m_shader->FindUniformLocation("model");
-
+		{
+			m_shader->FindUniformLocation("model");
+			m_shader->FindUniformLocation("material.diffuse");
+			if (!dynamic_cast<Light*>(this))
+			{
+				m_shader->FindUniformLocation("material.ambient");
+				m_shader->FindUniformLocation("material.specular");
+				m_shader->FindUniformLocation("material.shininess");
+				m_shader->FindUniformLocation("material.emissive");
+			}
+		}
 		if (!m_shader_debug) return;
 		m_shader_debug->FindUniformLocation("model");
+
 	
 	}
 	
@@ -133,6 +156,17 @@ namespace HS_Engine
 		m_Materialname = material->GetMaterialName();
 	}
 
+	void Object::SetMaterialDiffuseTexture(Texture* texture)
+	{
+		m_ObjData.m_material.SetDiffuseTexture(texture);
+	}
+
+	void Object::SetMaterialSpecularTexture(Texture* texture)
+	{
+		m_ObjData.m_material.SetSpecularTexture(texture);
+	}
+
+
 	void Object::PreRender()
 	{
 		m_ObjData.m_ModelMat = glm::mat4(1.0f);
@@ -148,16 +182,65 @@ namespace HS_Engine
 		if (!m_shader) return;
 		
 		m_shader->Bind();
-		m_shader_debug->FindUniformLocation("model");
 		m_shader->BindUniformVariable("material.diffuse", m_ObjData.m_material.Getdiffuse());
-		m_shader->BindUniformVariable("material.ambient", m_ObjData.m_material.GetAmbient());
-		m_shader->BindUniformVariable("material.specular", m_ObjData.m_material.GetSpecular());
+
+		if (!dynamic_cast<Light*>(this))
+		{
+			m_shader->BindUniformVariable("material.ambient", m_ObjData.m_material.GetAmbient());
+			m_shader->BindUniformVariable("material.specular", m_ObjData.m_material.GetSpecular());
+
+			m_shader->BindUniformVariable("material.shininess", m_ObjData.m_material.GetShinness());
+			m_shader->BindUniformVariable("material.emissive", m_ObjData.m_material.GetEmissive());
+
+			if (GetObjData().m_material.IsExistDiffuseTexture())
+			{
+				GetObjData().m_material.GetDiffuseTexture()->Bind();
+				m_shader->FindUniformLocation("diffuse_texture_isexist");
+				m_shader->BindUniformVariable("diffuse_texture_isexist", true);
+
+				m_shader->FindUniformLocation("diffuse_texture");
+				m_shader->BindUniformVariable("diffuse_texture", static_cast<int>(GetObjData().m_material.GetDiffuseTexture()->GetTextureIdx()));
+
+				m_shader->FindUniformLocation("gpu_calculation");
+				m_shader->BindUniformVariable("gpu_calculation", GetMesh()->GetGPUCalucation());
+				
+				m_shader->FindUniformLocation("UV_mapping_mode");
+				m_shader->BindUniformVariable("UV_mapping_mode", static_cast<int>(GetMesh()->GetUVType()));
+				
+				m_shader->FindUniformLocation("UV_Entity_Normal");
+				m_shader->BindUniformVariable("UV_Entity_Normal", static_cast<int>(GetMesh()->GetUV_Entity_Types()));
+				
+			}
+			else
+			{
+				m_shader->FindUniformLocation("diffuse_texture_isexist");
+				m_shader->BindUniformVariable("diffuse_texture_isexist", false);
+			}
+			
+			if (GetObjData().m_material.IsExistSpecularTexture())
+			{
+				GetObjData().m_material.GetSpecularTexture()->Bind();
+				m_shader->FindUniformLocation("specular_texture_isexist");
+				m_shader->BindUniformVariable("specular_texture_isexist", true);
+
+				m_shader->FindUniformLocation("specular_texture");
+				m_shader->BindUniformVariable("specular_texture", static_cast<int>(GetObjData().m_material.GetSpecularTexture()->GetTextureIdx()));
+			}
+			else
+			{
+				m_shader->FindUniformLocation("specular_texture_isexist");
+				m_shader->BindUniformVariable("specular_texture_isexist", false);
+			}
+		}
+		
 		m_shader->BindUniformVariable("model", m_ObjData.m_ModelMat);
+		
 		m_mesh->Render(m_RenderType);
 		m_shader->Unbind();
 
 		if (GetIsDisplayDebug() == true)
 		{
+			m_shader_debug->FindUniformLocation("model");
 			m_shader_debug->Bind();
 			m_shader_debug->BindUniformVariable("model", m_ObjData.m_ModelMat);
 			m_mesh->DebugRender();

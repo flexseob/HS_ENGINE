@@ -1,4 +1,15 @@
-
+/* Start Header -------------------------------------------------------
+Copyright (C) <2021> DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written
+consent of DigiPen Institute of Technology is prohibited.
+File Name: Object.h
+Purpose: Setting for Object class
+Language: C++ , Microsoft Visual C++
+Platform: <Microsoft Visual C++ 19.29.30037, hardware requirements, Windows 10>
+Project: <h.jeong_CS300_1>
+Author: <Hoseob Jeong, h.jeong, 180002521>
+Creation date: <09/11/21>
+End Header --------------------------------------------------------*/
 #pragma once
 #include <functional>
 #include <string>
@@ -18,7 +29,7 @@ namespace HS_Engine
 		Object(std::string objectname, std::string meshname, E_MeshTypes meshtype,E_Proceduralmesh preceduralmeshtype, E_RenderTypes rendertype);
 		Object(std::string objectname, Object* object);
 
-		void Init();
+		virtual void Init();
 		std::string GetObjectName() const;
 		std::string GetMeshName() const;
 		std::string GetObjPath() const;
@@ -34,6 +45,8 @@ namespace HS_Engine
 		void SetObjectColor(glm::vec3 objectcolor);
 		void SetMaterial(Material material);
 		void SetMaterial(Material* material);
+		void SetMaterialDiffuseTexture(Texture* texture);
+		void SetMaterialSpecularTexture(Texture* texture);
 		void SetMesh(Mesh* mesh);
 
 		glm::vec3 GetPosition() const;
@@ -48,9 +61,9 @@ namespace HS_Engine
 		{
 			return m_Materialname;
 		}
-		void PreRender();
+		virtual void PreRender();
 		void Render();
-		void PostRender(double dt);
+		virtual void PostRender(double dt);
 
 		void SetPostRenderFunction(std::function<void(double)> function);
 		std::function<void(double)> m_PostRenderFunction = nullptr;

@@ -1,4 +1,15 @@
-
+/* Start Header-------------------------------------------------------
+Copyright(C) < 2021 > DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written
+consent of DigiPen Institute of Technology is prohibited.
+File Name : OBJLoader.cpp
+Purpose : Object Loader class source file
+Language : C++, Microsoft Visual C++
+Platform : <Microsoft Visual C++ 19.29.30037, hardware requirements, Windows 10>
+Project : <h.jeong_CS300_1>
+Author : <Hoseob Jeong, h.jeong, 180002521>
+Creation date : <09 / 11 / 21>
+End Header-------------------------------------------------------- */
 #include "OBJLoader.h"
 
 #include <chrono>
@@ -45,7 +56,9 @@ namespace HS_Engine
 				if (token == "v")
 				{
 					glm::vec3 vertex;
-					lineStream >> vertex.x >> vertex.y >> vertex.z;
+					lineStream >> vertex.x;
+					lineStream >> vertex.y;
+					lineStream >> vertex.z;
 					if (m_min.x > vertex.x)
 						m_min.x = vertex.x;
 					if (m_max.x <= vertex.x)
@@ -123,6 +136,7 @@ namespace HS_Engine
 			glm::vec3 b = p3 - p1;
 			//use cross product
 			glm::vec3 n = glm::normalize(glm::cross(a, b));
+			
 			//n *= -1.f;
 			for(size_t j = i; j<i+3; j++)
 			{
@@ -137,11 +151,11 @@ namespace HS_Engine
 					bool IsExist = false;
 					for(auto normal : check->second)
 					{
-						if(normal == n)
+						if(abs(normal.x - n.x)< EPSILON && abs(normal.y- n.y) < EPSILON && abs(normal.z - n.z) < EPSILON)
 						{
 							IsExist = true;
 						}
-					}
+					} 
 					if(!IsExist)
 					{
 						m_NormalData[m_facesData[j].m_pIdx] += n;
@@ -169,6 +183,7 @@ namespace HS_Engine
 		mesh->ClearDataByFaceNormal();
 		int idx = 0;
 		 HS_Engine::Mesh::MeshData& meshdata = mesh->m_MeshDataByFaceNormal;
+		
 		for(size_t i = 0; i < m_facesData.size(); i += 3)
 		{
 			const glm::vec3& p1 = m_VertexData[m_facesData[i].m_pIdx];
@@ -205,6 +220,47 @@ namespace HS_Engine
 			meshdata.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.x);
 			meshdata.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.y);
 			meshdata.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.z);
+
+			//uv
+			glm::vec3 normalVertex = glm::vec3((p1.x - 1.0f));
+			glm::vec2 uv{ 0.f };
+			glm::vec3 centroidVec1 = glm::normalize(p1);
+			glm::vec3 centroidVec2 = glm::normalize(p2);
+			glm::vec3 centroidVec3 = glm::normalize(p3);
+
+
+			std::vector<glm::vec3> center;
+			center.push_back(centroidVec1);
+			center.push_back(centroidVec2);
+			center.push_back(centroidVec3);
+
+			for(auto& cen : center)
+			{
+				uv = CreateSphericalUV(cen);
+				meshdata.m_TexCoords_SPHERICAL.push_back(uv.x);
+				meshdata.m_TexCoords_SPHERICAL.push_back(uv.y);
+				uv = CreateCylindricalUV(cen);
+				meshdata.m_TexCoords_CYLINDRICAL.push_back(uv.x);
+				meshdata.m_TexCoords_CYLINDRICAL.push_back(uv.y);
+				uv = CreateCubeMapUV(cen);
+				meshdata.m_TexCoords_CUBE_MAPPED.push_back(uv.x);
+				meshdata.m_TexCoords_CUBE_MAPPED.push_back(uv.y);
+			}
+
+			center.clear();
+
+			for(int i=0; i < 3; ++i)
+			{
+				uv = CreateSphericalUV(n);
+				meshdata.m_TexCoords_SPHERICAL_NORMAL.push_back(uv.x);
+				meshdata.m_TexCoords_SPHERICAL_NORMAL.push_back(uv.y);
+				uv = CreateCylindricalUV(n);
+				meshdata.m_TexCoords_CYLINDRICAL_NORMAL.push_back(uv.x);
+				meshdata.m_TexCoords_CYLINDRICAL_NORMAL.push_back(uv.y);
+				uv = CreateCubeMapUV(n);
+				meshdata.m_TexCoords_CUBE_MAPPED_NORMAL.push_back(uv.x);
+				meshdata.m_TexCoords_CUBE_MAPPED_NORMAL.push_back(uv.y);
+			}
 			
 			for(int j=0; j <3; ++j)
 			{
@@ -246,13 +302,18 @@ namespace HS_Engine
 				mesh->m_MeshDataByVertexNormal.m_Normals.push_back(normal.y);
 				mesh->m_MeshDataByVertexNormal.m_Normals.push_back(normal.z);
 
+				
 
+				
+
+				
 				if (m_TexData.empty() == false)
 				{
 					glm::vec2& texcoord = m_TexData[vert.m_tcIdx];
 					mesh->m_MeshDataByVertexNormal.m_TexCoords.push_back(texcoord.x);
 					mesh->m_MeshDataByVertexNormal.m_TexCoords.push_back(texcoord.y);
 				}
+				
 
 
 				mesh->m_MeshDataByVertexNormal.m_Faces.push_back(static_cast<unsigned int>(vIdx));
@@ -318,8 +379,71 @@ namespace HS_Engine
 						MeshData.m_TexCoords.push_back(texcoord.y);
 					}
 				}
+				glm::vec3 normVertex = glm::normalize(glm::vec3((vertex.x + 1.0f)/2.f,(vertex.y +1.0f) / 2.f,(vertex.z +1.0f) / 2.f));
+				float theta(0.0f);
+				float z(0.0f);
+				float phi(0.0f);
+
+				//planar
+				glm::vec2 uv(0.0f);
+				uv.x = (normVertex.x - (-1.0f)) / (2.0f);
+				uv.y = (normVertex.y - (-1.0f)) / (2.0f);
+
+				MeshData.m_TexCoords_PLANAR.push_back(uv.x);
+				MeshData.m_TexCoords_PLANAR.push_back(uv.x);
+
+				glm::vec3 centroidVec = glm::normalize(vertex);
+
+				////Cylindical
+				uv = CreateCylindricalUV(centroidVec);
+
+				
+				MeshData.m_TexCoords_CYLINDRICAL.push_back(uv.x);
+				MeshData.m_TexCoords_CYLINDRICAL.push_back(uv.y);
+
+				//Spherical
+				uv = CreateSphericalUV(centroidVec);
+
+				MeshData.m_TexCoords_SPHERICAL.push_back(uv.x);
+				MeshData.m_TexCoords_SPHERICAL.push_back(uv.y);
 
 
+				// cubemap
+				uv = CreateCubeMapUV(centroidVec);
+				
+				MeshData.m_TexCoords_CUBE_MAPPED.push_back(uv.s);
+				MeshData.m_TexCoords_CUBE_MAPPED.push_back(uv.t);
+
+
+
+				// Normal//
+				uv.x = (normVertex.x - (-1.0f)) / (2.0f);
+				uv.y = (normVertex.y - (-1.0f)) / (2.0f);
+
+				MeshData.m_TexCoords_PLANAR_NORMAL.push_back(uv.x);
+				MeshData.m_TexCoords_PLANAR_NORMAL.push_back(uv.x);
+
+				centroidVec = glm::normalize(normal);
+
+				//Cylindical
+				 uv = CreateCylindricalUV(centroidVec);
+
+				MeshData.m_TexCoords_CYLINDRICAL_NORMAL.push_back(uv.x);
+				MeshData.m_TexCoords_CYLINDRICAL_NORMAL.push_back(uv.y);
+
+				//Spherical
+				uv = CreateSphericalUV(centroidVec);
+
+				MeshData.m_TexCoords_SPHERICAL_NORMAL.push_back(uv.x);
+				MeshData.m_TexCoords_SPHERICAL_NORMAL.push_back(uv.y);
+
+				// cubemap normal
+				uv = CreateCubeMapUV(centroidVec);
+
+				MeshData.m_TexCoords_CUBE_MAPPED_NORMAL.push_back(uv.s);
+				MeshData.m_TexCoords_CUBE_MAPPED_NORMAL.push_back(uv.t);
+				
+				
 				mesh->m_MeshDataByVertexNormal.m_Faces.push_back(static_cast<unsigned int>(vIdx));
 				vertexMap[vertStr] = static_cast<unsigned int>(vIdx);
 			}
@@ -463,6 +587,110 @@ namespace HS_Engine
 		result = result < z_Range ? z_Range : result;
 
 		return result;
+	}
+
+	glm::vec2 ObjectLoader::CreateSphericalUV(glm::vec3 vec3)
+	{
+		glm::vec2 uv;
+		float theta = glm::degrees(static_cast<float>(atan2(vec3.z, vec3.x)));
+		theta += 180.0f;
+
+		float z = vec3.y;
+		float phi = glm::degrees(glm::acos(z / vec3.length()));
+
+		uv.x = theta / 360.0f;
+		uv.y = 1.0f - (phi / 180.0f);
+
+		return uv;
+	}
+
+	glm::vec2 ObjectLoader::CreateCylindricalUV(glm::vec3 vec3)
+	{
+		glm::vec2 uv;
+		float theta = 0.f;
+		theta = glm::degrees(static_cast<float>(atan2(vec3.z, vec3.x)));
+		theta += 180.0f;
+
+		float z = (vec3.y + 1.0f) * 0.5f;
+
+		uv.x = theta / 360.0f;
+		uv.y = z;
+
+		return uv;
+	}
+
+	glm::vec2 ObjectLoader::CreateCubeMapUV(glm::vec3 vec3)
+	{
+		float x = vec3.x;
+		float y = vec3.y;
+		float z = vec3.z;
+
+		float absX = abs(x);
+		float absY = abs(y);
+		float absZ = abs(z);
+
+		bool isXPositive = x > 0 ? 1 : 0;
+		bool isYPositive = y > 0 ? 1 : 0;
+		bool isZPositive = z > 0 ? 1 : 0;
+
+		float maxAxis = 0;
+		float uc = 0;
+		float vc = 0;
+
+		// POSITIVE X
+		if (bool(isXPositive) && (absX >= absY) && (absX >= absZ))
+		{
+			maxAxis = absX;
+			uc = -z;
+			vc = y;
+		}
+
+		// NEGATIVE X
+		else if (!bool(isXPositive) && absX >= absY && absX >= absZ)
+		{
+
+			maxAxis = absX;
+			uc = z;
+			vc = y;
+		}
+
+		// POSITIVE Y
+		else if (bool(isYPositive) && absY >= absX && absY >= absZ)
+		{
+			maxAxis = absY;
+			uc = x;
+			vc = -z;
+		}
+
+		// NEGATIVE Y
+		else if (!bool(isYPositive) && absY >= absX && absY >= absZ)
+		{
+			maxAxis = absY;
+			uc = x;
+			vc = z;
+		}
+
+		// POSITIVE Z
+		else if (bool(isZPositive) && absZ >= absX && absZ >= absY)
+		{
+			maxAxis = absZ;
+			uc = x;
+			vc = y;
+		}
+
+		// NEGATIVE Z
+		else if (!bool(isZPositive) && absZ >= absX && absZ >= absY)
+		{
+			maxAxis = absZ;
+			uc = -x;
+			vc = y;
+		}
+		glm::vec2 uv;
+
+		uv.s = 0.5f * (uc / maxAxis + 1.0f);
+		uv.t = 0.5f * (vc / maxAxis + 1.0f);
+
+		return uv;
 	}
 }
 	

@@ -1,6 +1,18 @@
-
+/* Start Header -------------------------------------------------------
+Copyright (C) <2021> DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written
+consent of DigiPen Institute of Technology is prohibited.
+File Name: Buffer.h
+Purpose: For VertexBuffer and Index Buffer and count the data location
+Language: C++ , Microsoft Visual C++
+Platform: <Microsoft Visual C++ 19.29.30037, hardware requirements, Windows 10>
+Project: <h.jeong_CS300_1>
+Author: <Hoseob Jeong, h.jeong, 180002521>
+Creation date: <09/11/21>
+End Header --------------------------------------------------------*/
 #pragma once
 #include <initializer_list>
+#include <string>
 #include <vector>
 #include <GL/glew.h>
 
@@ -76,6 +88,22 @@ namespace HS_Engine
 		unsigned int m_Render_ID = std::numeric_limits<unsigned int>::max();;
 		unsigned int m_Count;
 	};
+
+	class UniformBuffer
+	{
+	public:
+		UniformBuffer(const void* buffer, unsigned size,unsigned index);
+		~UniformBuffer();
+		void Bind() const;
+		void BufferData(const void* buffer, unsigned size);
+		void UnBind() const;
+		void DescribeData(const HS_Engine::DescribeData& described_Data) { m_Describe_Data = described_Data; }
+		const HS_Engine::DescribeData& GetDescribedData() const { return m_Describe_Data; }
+	private:
+		unsigned int m_UniformBuffer_ID = std::numeric_limits<unsigned int>::max();
+		HS_Engine::DescribeData m_Describe_Data;
+	};
+
 
 
 };

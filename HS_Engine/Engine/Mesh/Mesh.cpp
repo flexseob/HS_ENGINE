@@ -1,4 +1,15 @@
-
+/* Start Header-------------------------------------------------------
+Copyright(C) < 2021 > DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written
+consent of DigiPen Institute of Technology is prohibited.
+File Name : Mesh.cpp
+Purpose : Mesh class source file
+Language : C++, Microsoft Visual C++
+Platform : <Microsoft Visual C++ 19.29.30037, hardware requirements, Windows 10>
+Project : <h.jeong_CS300_1>
+Author : <Hoseob Jeong, h.jeong, 180002521>
+Creation date : <09 / 11 / 21>
+End Header-------------------------------------------------------- */
 #include "Mesh.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -125,6 +136,7 @@ namespace HS_Engine
 
 	void Mesh::ChangeDebugNormalType(bool IsFaceNormal)
 	{
+		if(m_RenderType == E_RenderTypes::TRIANGLES)
 		if (m_CheckFlag == false)
 		{
 			if (IsFaceNormal)
@@ -153,6 +165,11 @@ namespace HS_Engine
 		m_CheckFlag = false;
 	}
 
+	void Mesh::SetUVCheckFlag()
+	{
+		m_UV_CheckFlag = true;
+	}
+
 	void Mesh::SetRenderType(E_RenderTypes types)
 	{
 		m_RenderType = types;
@@ -166,6 +183,96 @@ namespace HS_Engine
 	void Mesh::SetMeshName(std::string name)
 	{
 		m_Meshname = name;
+	}
+
+	void Mesh::SetMeshType(E_MeshTypes types)
+	{
+		m_MeshType = types;
+	}
+
+	void Mesh::SetGPUCalculation(bool isGPUCalculate)
+	{
+		m_UV_GPU_calculation = isGPUCalculate;
+	}
+
+	bool Mesh::GetGPUCalucation() const
+	{
+		return m_UV_GPU_calculation;
+	}
+
+	void Mesh::ChangeUVType(E_UV_Types types ,E_UV_Entity_Types entity_types)
+	{
+		if (types != m_UV_Types || entity_types != m_UV_Entity_Types)
+		{
+			if (entity_types == E_UV_Entity_Types::VERTEX_POS)
+			{
+				switch (types)
+				{
+				case E_UV_Types::CUBE_MAPPED_UV:
+					m_BufferForVertexNormal[2]->BufferData(m_MeshDataByVertexNormal.m_TexCoords_CUBE_MAPPED.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_TexCoords_CUBE_MAPPED.size() * sizeof(float)));
+					m_BufferForFaceNormal[2]->BufferData(m_MeshDataByFaceNormal.m_TexCoords_CUBE_MAPPED.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_TexCoords_CUBE_MAPPED.size() * sizeof(float)));
+					break;
+				case E_UV_Types::SPHERICAL_UV:
+					m_BufferForVertexNormal[2]->BufferData(m_MeshDataByVertexNormal.m_TexCoords_SPHERICAL.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_TexCoords_SPHERICAL.size() * sizeof(float)));
+					m_BufferForFaceNormal[2]->BufferData(m_MeshDataByFaceNormal.m_TexCoords_SPHERICAL.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_TexCoords_SPHERICAL.size() * sizeof(float)));
+					break;
+				case E_UV_Types::CYLINDRICAL_UV:
+					m_BufferForVertexNormal[2]->BufferData(m_MeshDataByVertexNormal.m_TexCoords_CYLINDRICAL.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_TexCoords_CYLINDRICAL.size() * sizeof(float)));
+					m_BufferForFaceNormal[2]->BufferData(m_MeshDataByFaceNormal.m_TexCoords_CYLINDRICAL.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_TexCoords_CYLINDRICAL.size() * sizeof(float)));
+					break;
+				case E_UV_Types::DEFAULT:
+					m_BufferForVertexNormal[2]->BufferData(m_MeshDataByVertexNormal.m_TexCoords.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_TexCoords.size() * sizeof(float)));
+					m_BufferForFaceNormal[2]->BufferData(m_MeshDataByFaceNormal.m_TexCoords.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_TexCoords.size() * sizeof(float)));
+					break;
+				}
+			}
+			else
+			{
+				switch(types)
+				{
+				case E_UV_Types::CUBE_MAPPED_UV:
+					m_BufferForVertexNormal[2]->BufferData(m_MeshDataByVertexNormal.m_TexCoords_CUBE_MAPPED_NORMAL.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_TexCoords_CUBE_MAPPED_NORMAL.size() * sizeof(float)));
+					m_BufferForFaceNormal[2]->BufferData(m_MeshDataByFaceNormal.m_TexCoords_CUBE_MAPPED_NORMAL.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_TexCoords_CUBE_MAPPED_NORMAL.size() * sizeof(float)));
+					break;
+				case E_UV_Types::SPHERICAL_UV:
+					m_BufferForVertexNormal[2]->BufferData(m_MeshDataByVertexNormal.m_TexCoords_SPHERICAL_NORMAL.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_TexCoords_SPHERICAL_NORMAL.size() * sizeof(float)));
+					m_BufferForFaceNormal[2]->BufferData(m_MeshDataByFaceNormal.m_TexCoords_SPHERICAL_NORMAL.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_TexCoords_SPHERICAL_NORMAL.size() * sizeof(float)));
+					break;
+				case E_UV_Types::CYLINDRICAL_UV:
+					m_BufferForVertexNormal[2]->BufferData(m_MeshDataByVertexNormal.m_TexCoords_CYLINDRICAL_NORMAL.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_TexCoords_CYLINDRICAL_NORMAL.size() * sizeof(float)));
+					m_BufferForFaceNormal[2]->BufferData(m_MeshDataByFaceNormal.m_TexCoords_CYLINDRICAL_NORMAL.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_TexCoords_CYLINDRICAL_NORMAL.size() * sizeof(float)));
+					break;
+				case E_UV_Types::DEFAULT:
+					m_BufferForVertexNormal[2]->BufferData(m_MeshDataByVertexNormal.m_TexCoords.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_TexCoords.size() * sizeof(float)));
+					m_BufferForFaceNormal[2]->BufferData(m_MeshDataByFaceNormal.m_TexCoords.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_TexCoords.size() * sizeof(float)));
+					break;
+					
+				}
+			}
+			m_UV_Types = types;
+			m_UV_Entity_Types = entity_types;
+		}
+		
+	}
+
+	void Mesh::ChangeUV_EntityType(E_UV_Entity_Types types)
+	{
+		m_UV_Entity_Types = types;
+	}
+
+	E_MeshTypes Mesh::GetMeshType() const
+	{
+		return m_MeshType;
+	}
+
+	E_UV_Types Mesh::GetUVType() const
+	{
+		return m_UV_Types;
+	}
+
+	E_UV_Entity_Types Mesh::GetUV_Entity_Types() const
+	{
+		return m_UV_Entity_Types;
 	}
 
 	const float Mesh::GetDebugMagnitue() const
@@ -233,6 +340,30 @@ namespace HS_Engine
 			normal_buffer1->DescribeData({ {DataType::Float3, 1} });
 			m_BufferForFaceNormal.push_back(normal_buffer1);
 		}
+
+
+		/// <summary>
+		/// Texture mapping
+		/// </summary>
+		if(!m_MeshDataByVertexNormal.m_TexCoords_CYLINDRICAL.empty())
+		{
+			std::shared_ptr<VertexBuffer> texcoord_buffer = std::make_shared<VertexBuffer>(m_MeshDataByVertexNormal.m_TexCoords_CYLINDRICAL.data(), static_cast<unsigned>(m_MeshDataByVertexNormal.m_TexCoords_CYLINDRICAL.size() * sizeof(float)));
+			texcoord_buffer->DescribeData({ { DataType::Float2, 2 } });
+			m_BufferForVertexNormal.push_back(texcoord_buffer);
+			if (m_MeshDataByVertexNormal.m_TexCoords.empty())
+			{
+				m_VertexArray->AddVertexBuffer(texcoord_buffer);
+			}
+		}
+		
+		if (!m_MeshDataByFaceNormal.m_TexCoords_CYLINDRICAL.empty())
+		{
+			std::shared_ptr<VertexBuffer> texcoord_buffer = std::make_shared<VertexBuffer>(m_MeshDataByFaceNormal.m_TexCoords_CYLINDRICAL.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_TexCoords_CYLINDRICAL.size() * sizeof(float)));
+			texcoord_buffer->DescribeData({ { DataType::Float2, 2 } });
+			m_BufferForFaceNormal.push_back(texcoord_buffer);
+		}
+		
+
 		
 		if(!m_MeshDataByVertexNormal.m_TexCoords.empty())
 		{
@@ -240,7 +371,9 @@ namespace HS_Engine
 			texcoord_buffer->DescribeData({ {DataType::Float2, 2 } });
 			m_VertexArray->AddVertexBuffer(texcoord_buffer);
 			m_BufferForVertexNormal.push_back(texcoord_buffer);
+		
 		}
+
 		if(!m_MeshDataByFaceNormal.m_TexCoords.empty())
 		{
 			std::shared_ptr<VertexBuffer> texcoord_buffer1 = std::make_shared<VertexBuffer>(m_MeshDataByFaceNormal.m_TexCoords.data(), static_cast<unsigned>(m_MeshDataByFaceNormal.m_TexCoords.size() * sizeof(float)));

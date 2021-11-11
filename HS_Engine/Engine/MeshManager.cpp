@@ -1,4 +1,15 @@
-
+/* Start Header-------------------------------------------------------
+Copyright(C) < 2021 > DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written
+consent of DigiPen Institute of Technology is prohibited.
+File Name : MeshManager.cpp
+Purpose : MeshManager class source file
+Language : C++, Microsoft Visual C++
+Platform : <Microsoft Visual C++ 19.29.30037, hardware requirements, Windows 10>
+Project : <h.jeong_CS300_1>
+Author : <Hoseob Jeong, h.jeong, 180002521>
+Creation date : <09 / 11 / 21>
+End Header-------------------------------------------------------- */
 #include "MeshManager.h"
 #include "Mesh/ProceduralMesh.h"
 #include <iostream>
@@ -15,6 +26,7 @@ namespace HS_Engine
 			new_mesh->SetRenderType(render_types);
 			new_mesh->InitBuffer();
 			new_mesh->SetMeshName(meshname);
+			new_mesh->SetMeshType(E_MeshTypes::BY_PATHMESH);
 			mMeshdata.insert({ meshname,new_mesh });
 			m_ObjLoader.ClearObjectData();
 			return new_mesh;
@@ -48,7 +60,7 @@ namespace HS_Engine
 				new_mesh = CreateCircle(100);
 				break;
 			}
-
+			new_mesh->SetMeshType(E_MeshTypes::BY_PROCEDURALMESH);
 			new_mesh->SetMeshName(meshname);
 			new_mesh->SetRenderType(render_types);
 			dynamic_cast<ProceduralMesh*>(new_mesh)->InitBuffer();
@@ -68,6 +80,13 @@ namespace HS_Engine
 		{
 			std::cout << "Cannot delete Mesh data! It doesn't not exist! : " << meshname << std::endl;
 		}
+		else
+		{
+			delete mesh_iter->second;
+			mesh_iter->second = nullptr;
+			mMeshdata.erase(mesh_iter);
+		}
+		
 	}
 
 	void MeshManager::DeleteAllMesh()

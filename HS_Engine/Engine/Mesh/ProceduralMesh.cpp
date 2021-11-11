@@ -1,9 +1,20 @@
-
+/* Start Header-------------------------------------------------------
+Copyright(C) < 2021 > DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written
+consent of DigiPen Institute of Technology is prohibited.
+File Name : ProceduralMesh.cpp
+Purpose : ProceduralMesh class source file
+Language : C++, Microsoft Visual C++
+Platform : <Microsoft Visual C++ 19.29.30037, hardware requirements, Windows 10>
+Project : <h.jeong_CS300_1>
+Author : <Hoseob Jeong, h.jeong, 180002521>
+Creation date : <09 / 11 / 21>
+End Header-------------------------------------------------------- */
 
 #include "ProceduralMesh.h"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-
+#include "../OBJLoader.h"
 namespace HS_Engine {
 	
     void BuildIndexBuffer(int numDivisions, ProceduralMesh* preceduralmesh);
@@ -51,6 +62,40 @@ namespace HS_Engine {
                 glm::vec2 uv = glm::vec2((float)slice / numbDivsions, (float)stack / numbDivsions);
                 newmesh->m_MeshDataByVertexNormal.m_TexCoords.push_back(uv.x);
                 newmesh->m_MeshDataByVertexNormal.m_TexCoords.push_back(uv.y);
+
+
+                uv = glm::vec2{ 0.f };
+                glm::vec3 centroidVec = glm::normalize(point);
+
+
+
+                std::vector<glm::vec3> center;
+     
+             
+                    uv = ObjectLoader::CreateSphericalUV(centroidVec);
+					newmesh->m_MeshDataByVertexNormal.m_TexCoords_SPHERICAL.push_back(uv.x);
+					newmesh->m_MeshDataByVertexNormal.m_TexCoords_SPHERICAL.push_back(uv.y);
+                    uv = ObjectLoader::CreateCylindricalUV(centroidVec);
+                    newmesh->m_MeshDataByVertexNormal.m_TexCoords_CYLINDRICAL.push_back(uv.x);
+                    newmesh->m_MeshDataByVertexNormal.m_TexCoords_CYLINDRICAL.push_back(uv.y);
+                    uv = ObjectLoader::CreateCubeMapUV(centroidVec);
+                    newmesh->m_MeshDataByVertexNormal.m_TexCoords_CUBE_MAPPED.push_back(uv.x);
+                    newmesh->m_MeshDataByVertexNormal.m_TexCoords_CUBE_MAPPED.push_back(uv.y);
+                
+
+				  center.clear();
+
+           
+                    uv = ObjectLoader::CreateSphericalUV(normal);
+                    newmesh->m_MeshDataByVertexNormal.m_TexCoords_SPHERICAL_NORMAL.push_back(uv.x);
+                    newmesh->m_MeshDataByVertexNormal.m_TexCoords_SPHERICAL_NORMAL.push_back(uv.y);
+                    uv = ObjectLoader::CreateCylindricalUV(normal);
+                    newmesh->m_MeshDataByVertexNormal.m_TexCoords_CYLINDRICAL_NORMAL.push_back(uv.x);
+                    newmesh->m_MeshDataByVertexNormal.m_TexCoords_CYLINDRICAL_NORMAL.push_back(uv.y);
+                    uv = ObjectLoader::CreateCubeMapUV(normal);
+                    newmesh->m_MeshDataByVertexNormal.m_TexCoords_CUBE_MAPPED_NORMAL.push_back(uv.x);
+                    newmesh->m_MeshDataByVertexNormal.m_TexCoords_CUBE_MAPPED_NORMAL.push_back(uv.y);
+                
 
             }
         }

@@ -1,6 +1,20 @@
+/* Start Header------------------------------------------------------ -
+Copyright(C) < 2021 > DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written
+consent of DigiPen Institute of Technology is prohibited.
+File Name : Buffer.cpp
+Purpose : Vertex and Index Buffer source file
+Language : C++, Microsoft Visual C++
+Platform : <Microsoft Visual C++ 19.29.30037, hardware requirements, Windows 10>
+Project : <h.jeong_CS300_1>
+Author : <Hoseob Jeong, h.jeong, 180002521>
+Creation date : <09 / 11 / 21>
+End Header-------------------------------------------------------- */
 
 #include "Buffer.h"
 
+#include <iostream>
+#include <stb_image.h>
 namespace HS_Engine
 {
 
@@ -135,4 +149,36 @@ namespace HS_Engine
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
+
+	UniformBuffer::UniformBuffer(const void* buffer, unsigned size, unsigned index)
+	{
+		glGenBuffers(1, &m_UniformBuffer_ID);
+		glBindBuffer(GL_UNIFORM_BUFFER, m_UniformBuffer_ID);
+		glBufferData(GL_UNIFORM_BUFFER, size, buffer, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_UNIFORM_BUFFER, index,m_UniformBuffer_ID);
+	}
+
+	UniformBuffer::~UniformBuffer()
+	{
+		glDeleteBuffers(1, &m_UniformBuffer_ID);
+	}
+
+	void UniformBuffer::Bind() const
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, m_UniformBuffer_ID);
+	}
+
+	void UniformBuffer::BufferData(const void* data, unsigned size)
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, m_UniformBuffer_ID);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
+	}
+
+
+	void UniformBuffer::UnBind() const
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	}
+
+
 }
