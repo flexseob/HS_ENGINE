@@ -1,16 +1,6 @@
-/* Start Header -------------------------------------------------------
-Copyright (C) <current year in format YYYY> DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the prior written
-consent of DigiPen Institute of Technology is prohibited.
-File Name: SkyBox.h
-Purpose: SkyBox object
-Language: C++ , Microsoft Visual C++
-Platform: <Microsoft Visual C++ 19.29.30037, hardware requirements, Windows 10>
-Project: <h.jeong_CS300_3>
-class CS300 and this file is a part of assignment 3, then write: foo_CS300_3>
-Author: <Hoseob Jeong, h.jeong, 180002521>
-Creation date: <11/11/21>
-End Header --------------------------------------------------------*/
+/* Start Header------------------------------------------------------ -
+Hoseob Jeong
+End Header-------------------------------------------------------- */
 #pragma once
 #include "Object.h"
 #include "Types.h"

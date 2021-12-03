@@ -1,3 +1,6 @@
+/* Start Header------------------------------------------------------ -
+Hoseob Jeong
+End Header-------------------------------------------------------- */
 #include "Texture.h"
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION    
