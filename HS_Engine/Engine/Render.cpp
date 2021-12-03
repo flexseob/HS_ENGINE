@@ -38,6 +38,11 @@ void HS_Engine::Render::ClearScreen()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 }
 
+void HS_Engine::Render::ClearColorBufferScreen()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void HS_Engine::Render::DrawSolidLine(std::shared_ptr<VertexArray> vertex_array)
 {
 	glDrawArrays(GL_LINE_STRIP, 0, vertex_array->GetIndexBuffers()->GetCount());

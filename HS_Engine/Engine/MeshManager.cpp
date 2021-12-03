@@ -45,7 +45,7 @@ namespace HS_Engine
 			switch(preceduralmesh)
 			{
 			case E_Proceduralmesh::SPHERE:
-				new_mesh = CreateSphere(1.f, 10);
+				new_mesh = CreateSphere(1.f, 20);
 				break;
 			case E_Proceduralmesh::CUBE:
 				//TODO : need to Implement

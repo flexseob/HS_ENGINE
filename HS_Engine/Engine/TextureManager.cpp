@@ -20,7 +20,7 @@ namespace HS_Engine
 {
 	TextureManager::~TextureManager()
 	{
-		
+		DeleteAllTexture();
 	}
 
 	void TextureManager::AddTexture(std::string texturename, std::string path, unsigned idx)
@@ -32,8 +32,56 @@ namespace HS_Engine
 			Texture* new_texture = new Texture(path, idx);
 			m_Textures.insert({ texturename, new_texture });
 		}
+		else
+		{
+			std::cout << "Texture name already exist! : " + texturename << std::endl;
+		}
 		
 	}
+
+	void TextureManager::AddTexture(std::string texturename, Texture* texture)
+	{
+		auto texture_iter = m_Textures.find(texturename);
+
+		if(texture_iter == m_Textures.end())
+		{
+			m_Textures.insert({ texturename, texture });
+		}
+		else
+		{
+			std::cout << "Texture name already exist! : " + texturename << std::endl;
+			std::cout << "This Texture deleted : " + texturename << std::endl;
+			delete texture;
+		}
+	}
+
+	void TextureManager::AddTextureInternal(std::string texturename, Texture* texture)
+	{
+		auto texture_iter = m_Textures.find(texturename);
+
+		if (texture_iter == m_Textures.end())
+		{
+			m_Textures.insert({ texturename, texture });
+		}
+		else
+		{
+			delete texture;
+		}
+		
+	}
+
+	void TextureManager::AddTextureSkyBox(std::string texturename, std::string path, unsigned idx)
+	{
+		auto texture_iter = m_Textures.find(texturename);
+
+		if (texture_iter == m_Textures.end())
+		{
+			Texture* new_texture = new Texture(path, idx, true);
+			m_Textures.insert({ texturename, new_texture });
+		}
+		
+	}
+
 
 	void TextureManager::DeleteAllTexture()
 	{

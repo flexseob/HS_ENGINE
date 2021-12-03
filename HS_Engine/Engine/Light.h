@@ -27,7 +27,7 @@ namespace HS_Engine
 		glm::vec3 lightAmbient{ 1.f,1.f,1.f };
 		float falloff = 64.f;
 		glm::vec3 lightSpecular{ 1.f,1.f,1.f }; 
-		float padding4;
+		float Radius;
 		glm::vec3 direction{ 0.f,-0.44f,0.f };
 		int lightType = E_LightType::POINTLIGHT;
 	};

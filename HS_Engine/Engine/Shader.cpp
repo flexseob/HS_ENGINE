@@ -44,6 +44,7 @@ namespace HS_Engine
 		{
 			throw std::runtime_error("Cannot open vertex shader source file!");
 		}
+		vert_stream.close();
 		m_ShaderPath.push_back({E_ShaderTypes::VERTEX,vert });
 		const char* vert_cstring = vert_src.c_str();
 		m_ShaderIDs[0] = glCreateShader(GL_VERTEX_SHADER);
@@ -76,7 +77,7 @@ namespace HS_Engine
 		{
 			throw std::runtime_error("Cannot open fragment shader source file!");
 		}
-
+		frag_stream.close();
 		const char* frag_cstring = frag_src.c_str();
 		m_ShaderIDs[1] = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(m_ShaderIDs[1], 1, &frag_cstring, nullptr);
@@ -115,6 +116,7 @@ namespace HS_Engine
 		{
 			throw std::runtime_error("Cannot open vertex shader source file!");
 		}
+		vert_stream.close();
 
 		const char* vert_cstring = vert_src.c_str();
 		m_ShaderIDs[0] = glCreateShader(GL_VERTEX_SHADER);
@@ -147,6 +149,7 @@ namespace HS_Engine
 		{
 			throw std::runtime_error("Cannot open fragment shader source file!");
 		}
+		frag_stream.close();
 
 		const char* frag_cstring = frag_src.c_str();
 		m_ShaderIDs[1] = glCreateShader(GL_FRAGMENT_SHADER);
@@ -178,7 +181,7 @@ namespace HS_Engine
 		{
 			throw std::runtime_error("Cannot open geom shader source file!");
 		}
-
+	
 		const char* geom_cstring = geom_src.c_str();
 		m_ShaderIDs[2] = glCreateShader(GL_GEOMETRY_SHADER);
 		glShaderSource(m_ShaderIDs[2], 1, &geom_cstring, 0);
@@ -417,7 +420,9 @@ namespace HS_Engine
 			glGetProgramInfoLog(m_ShaderID, lnk_log, NULL, error_log);
 			std::cout << error_log << std::endl;
 		}
-		
+		if (lnk_log > 0)
+			delete[] error_log;
+	
 		glValidateProgram(m_ShaderID);
 		GLint is_validate = 0;
 		glGetProgramiv(m_ShaderID, GL_VALIDATE_STATUS, &is_validate);
@@ -481,6 +486,7 @@ namespace HS_Engine
 		{
 			throw std::runtime_error("Cannot open "+ type+" shader source file!");
 		}
+		shader_stream.close();
 
 		const char* vert_cstring = shader_src.c_str();
 		unsigned shader_id = glCreateShader(shaderMacro);
@@ -499,99 +505,67 @@ namespace HS_Engine
 
 	void Shader::BindUniformVariable(const std::string& variable, float floating_value)
 	{
-		for (auto& uniformid : m_UniformIDs)
+		if(auto find = m_UniformIDs.find(variable); find != m_UniformIDs.end() && find->second != std::numeric_limits<unsigned int>::max())
 		{
-			if (uniformid.second == variable)
-			{
-				glUniform1f(uniformid.first, floating_value);
-				return;
-			}
+			glUniform1f(find->second, floating_value);
+			return;
 		}
-		std::cout << variable << " is not exist!" << std::endl;
-
 	}
 
 	void Shader::BindUniformVariable(const std::string& variable, glm::vec2 vec2)
 	{
-		for (auto& uniformid : m_UniformIDs)
+		if (auto find = m_UniformIDs.find(variable); find != m_UniformIDs.end() && find->second != std::numeric_limits<unsigned int>::max())
 		{
-			if (uniformid.second == variable)
-			{
-				glUniform2f(uniformid.first, vec2.x,vec2.y);
-				return;
-			}
+			glUniform2f(find->second, vec2.x,vec2.y);
+			return;
 		}
-		std::cout << variable << " is not exist!" << std::endl;
-
 	}
 	void Shader::BindUniformVariable(const std::string& variable, glm::vec3 vec3)
 	{
-		for (auto& uniformid : m_UniformIDs)
+		if (auto find = m_UniformIDs.find(variable); find != m_UniformIDs.end() && find->second != std::numeric_limits<unsigned int>::max())
 		{
-			if (uniformid.second == variable)
-			{
-				glUniform3f(uniformid.first, vec3.x, vec3.y, vec3.z);
-				return;
-			}
+			glUniform3f(find->second, vec3.x, vec3.y, vec3.z);
+			return;
 		}
-		std::cout << variable << " is not exist!" << std::endl;
 	}
 	
 
 
 	void Shader::BindUniformVariable(const std::string& variable, const glm::mat4& matrix)
 	{
-		for (auto& uniformid : m_UniformIDs)
+		if (auto find = m_UniformIDs.find(variable); find != m_UniformIDs.end() && find->second != std::numeric_limits<unsigned int>::max())
 		{
-			if (uniformid.second == variable)
-			{
-				glUniformMatrix4fv(uniformid.first, 1, GL_FALSE, &matrix[0][0]);
-				return;
-			}
+			glUniformMatrix4fv(find->second, 1, GL_FALSE, &matrix[0][0]);
+			return;
 		}
-		std::cout << variable << " is not exist!" << std::endl;
 	}
 
 	void Shader::BindUniformVariable(const std::string& variable, const glm::mat3& matrix)
 	{
-
-		for (auto& uniformid : m_UniformIDs)
+		if (auto find = m_UniformIDs.find(variable); find != m_UniformIDs.end() && find->second != std::numeric_limits<unsigned int>::max())
 		{
-			if (uniformid.second == variable)
-			{
-				glUniformMatrix3fv(uniformid.first, 1, GL_FALSE, &matrix[0][0]);
-				return;
-			}
+			glUniformMatrix3fv(find->second, 1, GL_FALSE, &matrix[0][0]);
+			return;
 		}
-		std::cout << variable << " is not exist!" << std::endl;
-
-
 	}
 	
 	void Shader::BindUniformVariable(const std::string& variable, int int_value)
 	{
-		
-		for (auto& uniformid : m_UniformIDs)
+		if (auto find = m_UniformIDs.find(variable); find != m_UniformIDs.end() && find->second != std::numeric_limits<unsigned int>::max())
 		{
-			if (uniformid.second == variable)
-			{
-				glUniform1i(uniformid.first, int_value);
-				return;
-			}
+			glUniform1i(find->second, int_value);
+			return;
 		}
-		
 	}
 
 	void Shader::BindUniformVariable(const std::string& variable, bool bool_value)
 	{
-		for (auto& uniformid : m_UniformIDs)
+		auto find = m_UniformIDs.find(variable);
+		if (auto find = m_UniformIDs.find(variable); find != m_UniformIDs.end() && find->second != std::numeric_limits<unsigned int>::max())
 		{
-			if (uniformid.second == variable)
-			{
-				glUniform1i(uniformid.first, bool_value);
-				return;
-			}
-		}
+			glUniform1i(find->second, bool_value);
+			return;
+		}	
 	}
 
 	void Shader::ReloadShader()
@@ -607,11 +581,15 @@ namespace HS_Engine
 		LinkShader();
 
 		//change the uniform variable
-		std::unordered_map<unsigned, std::string> temp_uniform_ids;
+		std::unordered_map<std::string, unsigned> temp_uniform_ids;
 		for (auto& uniformid : m_UniformIDs)
 		{
-			unsigned uniformlocate = glGetUniformLocation(m_ShaderID, uniformid.second.c_str());
-			temp_uniform_ids.insert(std::pair<unsigned, std::string>(uniformlocate, uniformid.second));
+			unsigned uniformlocate = glGetUniformLocation(m_ShaderID, uniformid.first.c_str());
+			if (uniformlocate == std::numeric_limits<unsigned>::max())
+			{
+				std::cout << m_ShaderPath[0].second << "/.frag : " << uniformid.first << " doesn't exist!" << std::endl;
+			}
+			temp_uniform_ids.insert({ uniformid.first,uniformlocate });
 		}
 		
 		m_UniformIDs.clear();
@@ -695,19 +673,23 @@ namespace HS_Engine
 
 	
 	//Find UniformLocation if it didn't add uniform ID, it will add the uniform ID
-	unsigned Shader::FindUniformLocation(const std::string& name)
+	unsigned Shader::FindUniformLocation(std::string name)
 	{
-		for(auto& uniformid : m_UniformIDs)
+		auto find = m_UniformIDs.find(name);
+		if(find != m_UniformIDs.end())
 		{
-			if(uniformid.second == name)
-			{
-				return uniformid.first;
-			}
+			return find->second;
 		}
-		unsigned uniformlocate = glGetUniformLocation(m_ShaderID, name.c_str());
-		m_UniformIDs.insert(std::pair<unsigned, std::string>(uniformlocate, name));
-		
-		return uniformlocate;
+		else
+		{
+			unsigned uniformlocate = glGetUniformLocation(m_ShaderID, name.c_str());
+			m_UniformIDs.insert({ name,uniformlocate });
+			if(uniformlocate == std::numeric_limits<unsigned>::max())
+			{
+				std::cout << m_ShaderPath[0].second << ".vert : " << name << " doesn't exist!" << std::endl;
+			}
+			return uniformlocate;
+		}
 	}
 
 	unsigned Shader::FindUniformBlockIndex(const std::string& name)

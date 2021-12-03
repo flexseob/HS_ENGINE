@@ -20,6 +20,7 @@ End Header-------------------------------------------------------- */
 #include "Light.h"
 #include "MeshManager.h"
 #include "Object.h"
+#include "Core/Camera.h"
 
 
 namespace HS_Engine
@@ -46,6 +47,10 @@ namespace HS_Engine
 					mesh->SetRenderType(object->GetRenderType());
 					object->SetMesh(mesh);
 					mObjects.insert({ objectname,object });
+					if (object->GetIsEnvironmentMapping() == true)
+					{
+						mEnvironmentObjects.insert({ objectname,object });
+					}
 					break;
 
 				case E_MeshTypes::BY_PROCEDURALMESH:
@@ -74,12 +79,20 @@ namespace HS_Engine
 						break;
 					}
 					mObjects.insert({ objectname,object });
+					if(object->GetIsEnvironmentMapping() == true)
+					{
+						mEnvironmentObjects.insert({ objectname,object });
+					}
 					break;
 				}
 			}
 			else
 			{
 				mObjects.insert({ objectname,object });
+				if (object->GetIsEnvironmentMapping() == true)
+				{
+					mEnvironmentObjects.insert({ objectname,object });
+				}
 			}
 			if(dynamic_cast<Light*>(object))
 			{
@@ -95,6 +108,53 @@ namespace HS_Engine
 
 	}
 
+	void ObjectManager::SetSkyBox(SkyBox* skybox)
+	{
+
+			std::string objectname = skybox->GetObjectName();
+			if (skybox->GetMesh() == nullptr)
+			{
+				Mesh* mesh = nullptr;
+				switch (skybox->GetMeshType())
+				{
+				case E_MeshTypes::BY_PATHMESH:
+					mesh = mMeshManager.AddMesh(skybox->GetMeshName(), skybox->GetObjPath(), skybox->GetRenderType());
+					mesh->SetRenderType(skybox->GetRenderType());
+					skybox->SetMesh(mesh);
+					break;
+
+				case E_MeshTypes::BY_PROCEDURALMESH:
+					switch (skybox->GetPreceduralmeshType())
+					{
+					case E_Proceduralmesh::SPHERE:
+						mesh = mMeshManager.AddMesh(skybox->GetMeshName(), E_Proceduralmesh::SPHERE, skybox->GetRenderType());
+						skybox->SetMesh(mesh);
+						break;
+					case E_Proceduralmesh::CUBE:
+						mesh = mMeshManager.AddMesh(skybox->GetMeshName(), E_Proceduralmesh::CUBE, skybox->GetRenderType());
+						skybox->SetMesh(mesh);
+						break;
+					case E_Proceduralmesh::CYLINDER:
+						mesh = mMeshManager.AddMesh(skybox->GetMeshName(), E_Proceduralmesh::CYLINDER, skybox->GetRenderType());
+						skybox->SetMesh(mesh);
+						break;
+					case E_Proceduralmesh::PLANE:
+						mesh = mMeshManager.AddMesh(skybox->GetMeshName(), E_Proceduralmesh::PLANE, skybox->GetRenderType());
+						skybox->SetMesh(mesh);
+						break;
+					case E_Proceduralmesh::CIRCLE:
+						mesh = mMeshManager.AddMesh(skybox->GetMeshName(), E_Proceduralmesh::CIRCLE, skybox->GetRenderType());
+						skybox->SetMesh(mesh);
+						break;
+					}
+					break;
+				}
+			}
+			m_skybox = skybox;
+			
+		
+	}
+
 	void ObjectManager::DeleteObject(std::string objname)
 	{
 		auto findobject = mObjects.find(objname);
@@ -104,6 +164,11 @@ namespace HS_Engine
 			Object* object = findobject->second;
 			mNeedtoDeleteObjects.push(object);
 			mObjects.erase(findobject);
+			if (object->GetIsEnvironmentMapping() == true)
+			{
+				const auto findEnvirObject = mEnvironmentObjects.find(objname);
+				mEnvironmentObjects.erase(findEnvirObject);
+			}
 			std::cout << "Object is deleted " << objname << std::endl;
 		}
 		else
@@ -129,11 +194,17 @@ namespace HS_Engine
 		for (auto& object : mObjects)
 		{
 			Object* objptr = object.second;
+			objptr->ReleaseShaderPointer();
 			delete objptr;
 			object.second = nullptr;
 		}
-
+		if(m_skybox)
+		{
+			delete m_skybox;
+			m_skybox = nullptr;
+		}
 		mObjects.clear();
+		mEnvironmentObjects.clear();
 	}
 
 
@@ -147,6 +218,32 @@ namespace HS_Engine
 			obj->Render();
 			obj->PostRender(dt);
 		}
+		if (m_skybox)
+		{
+			m_skybox->PreRender();
+			m_skybox->Render();
+			m_skybox->PostRender(dt);
+		}
+	}
+
+	void ObjectManager::RenderAllForFrameBuffer(double dt ,Object* itself)
+	{
+		for (auto& object : mObjects)
+		{
+			Object* obj = object.second;
+			obj->PreRender();
+			if(obj != itself)
+			{
+				obj->Render();
+			}
+		}
+		if (m_skybox)
+		{
+			m_skybox->PreRender();
+			m_skybox->Render();
+			m_skybox->PostRender(dt);
+		}
+		
 	}
 
 	void ObjectManager::ChangeAllObjectShader(std::shared_ptr<Shader> shader)
@@ -189,6 +286,38 @@ namespace HS_Engine
 		}
 
 
+	}
+
+	void ObjectManager::EnvironmentMapping(std::function<void(Camera&, Object*)> function, std::shared_ptr<FrameBuffer> framebuffer)
+	{
+
+
+		GLenum DrawBuffers[2] = { GL_COLOR_ATTACHMENT0,GL_DEPTH_ATTACHMENT };
+		GLuint numBuffers = 2;
+		
+		HS_Engine::Camera camera;
+		camera.Zoom = 90.f;
+		for (auto& envirObj : mEnvironmentObjects)
+		{
+			camera.Position = envirObj.second->GetPosition();
+			for (int j = 0; j < 6; ++j)
+			{
+				framebuffer->Bind();
+				camera.Yaw = Yaw[j];
+				camera.Pitch = Pitch[j];
+				camera.updateCameraVectors();
+				glDrawBuffers(numBuffers, DrawBuffers);
+				framebuffer->CreateFrameTexture(mTextureManager.GetTexture(envirObj.first+mappingname[j]));
+				function(camera, envirObj.second);
+				framebuffer->UnBind();
+			}
+			
+		}
+
+		
+		
+
+		
 	}
 
 	void ObjectManager::GUIViewer()
@@ -285,8 +414,61 @@ namespace HS_Engine
 							object->SetIsDisplayDebug(false);
 						}
 					}
+					bool is_change2 = object->GetIsEnvironmentMapping();
+					bool check = ImGui::Checkbox("EnvironemntSetting On/off",&is_change2);
+					object->SetEnvironmentMapping(is_change2);
+					if(is_change2 == false && check == true)
+					{
+						mEnvironmentObjects.erase(object->GetObjectName());
+					}else if(is_change2 == true && check == true)
+					{
+						mEnvironmentObjects.insert({ object->GetObjectName(),object });
+						object->GetObjData().m_material.AddCubeMappingTexture({ {E_CUBE_MAP::TOP,mTextureManager.GetTexture(object->GetObjectName() + "TopFrame")},
+										{E_CUBE_MAP::BOTTOM,mTextureManager.GetTexture(object->GetObjectName() + "BottomFrame")},
+										{E_CUBE_MAP::BACK,mTextureManager.GetTexture(object->GetObjectName() + "BackFrame")},
+										{E_CUBE_MAP::FRONT,mTextureManager.GetTexture(object->GetObjectName() + "FrontFrame")},
+										{E_CUBE_MAP::RIGHT,mTextureManager.GetTexture(object->GetObjectName() + "RightFrame")},
+										{E_CUBE_MAP::LEFT,mTextureManager.GetTexture(object->GetObjectName() + "LeftFrame")} });
+					}
+					if (object->GetIsEnvironmentMapping() == true)
+					{
+						ImGui::NewLine();
+						ImGui::TextColored({0.f,1.f,0.f,1.f},"Environment");
+					
+						
+						float RefractionIndex = object->GetRefractionIndex();
+						ImGui::DragFloat("RefractionIndex", &RefractionIndex, 0.01f, 0.f, 100.f,"%.6f");
+						object->SetFractionIndex(RefractionIndex);
+
+						int EnvironmentMode = static_cast<int>(object->GetEnvironmentMode());
+						ImGui::RadioButton("Only Reflection", &EnvironmentMode, 0);
+						ImGui::SameLine();
+						ImGui::RadioButton("Only Refraction", &EnvironmentMode, 1);
+						ImGui::SameLine();
+						ImGui::RadioButton("Fresnel", &EnvironmentMode, 2);
+						bool EnvironmentPhong = object->GetIsEnvironmentPhongShading();
+						ImGui::Checkbox("Phongshading", &EnvironmentPhong);
+						object->SetIsEnvironmentPhongShading(EnvironmentPhong);
+						if(object->GetIsEnvironmentPhongShading())
+						{
+							float value = object->GetPhongShadingValue();
+							ImGui::DragFloat("PhongMixvalue", &value, 0.01f, 0, 1.f);
+							object->SetPhongShadingValue(value);
+						}
+						
+						object->SetEnvironmentMode(static_cast<E_Environment_Mapping>(EnvironmentMode));
+						static const char* Setting[] = { "Air 1.000293","Hydrogen 1.000132","Water 1.333 ","Olive Oil 1.47","Ice (solidified water) 1.31","Quartz 1.46","Diamond 2.42","Acrylic / plexiglas / Lucite 1.49"};
+						const float refractionidx[8] = { 1.000293f ,1.000132f,1.333f, 1.47f ,1.31f ,1.46f ,2.42f,1.49f };
+						static int num;
+						bool is_change = ImGui::Combo("RefractionSetting", &num, Setting,IM_ARRAYSIZE(Setting));
+						if(is_change)
+						object->SetFractionIndex(refractionidx[num]);
+
+						
+					}
+					
 					ImGui::NewLine();
-					ImGui::Text("Mesh Settings");
+					ImGui::TextColored({ 0.f,1.f,0.f,1.f }, "Mesh Settings");
 					std::string MeshGuiTitle = "MeshName : ";
 					MeshGuiTitle += object->GetMeshName();
 					ImGui::Text(MeshGuiTitle.c_str());
@@ -316,7 +498,7 @@ namespace HS_Engine
 					}
 
 					ImGui::NewLine();
-					ImGui::Text("Object Settings");
+					ImGui::TextColored({ 0.f,1.f,0.f,1.f }, "Object Settings");
 					HS_Engine::Object::ObjectData& objectdata = object->GetObjData();
 
 					glm::vec3 objectPosition = objectdata.m_Position;
@@ -341,7 +523,7 @@ namespace HS_Engine
 
 
 					ImGui::NewLine();
-					ImGui::Text("Material Settings");
+					ImGui::TextColored({ 0.f,1.f,0.f,1.f }, "Material Settings");
 					std::string MaterialName = "MaterialName : " + object->GetMaterialName();
 					ImGui::Text(MaterialName.c_str());
 					if (ImGui::BeginCombo("Material", current_material))
@@ -430,6 +612,7 @@ namespace HS_Engine
 
 						}
 					}
+				
 					//bool Is_change_materal = 
 
 

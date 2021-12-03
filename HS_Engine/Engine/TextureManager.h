@@ -25,6 +25,9 @@ namespace HS_Engine
 		~TextureManager();
 
 		void AddTexture(std::string texturename, std::string path, unsigned idx);
+		void AddTexture(std::string texturename, Texture* texture);
+		void AddTextureInternal(std::string texturename, Texture* texture);
+		void AddTextureSkyBox(std::string texturename, std::string path, unsigned idx);
 		void DeleteAllTexture();
 		void DeleteTexture(std::string path);
 		Texture* GetTexture(std::string texturename);

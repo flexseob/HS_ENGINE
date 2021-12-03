@@ -42,6 +42,9 @@ namespace HS_Engine
 		bool IsExistDiffuseTexture() const;
 		bool IsExistSpecularTexture() const;
 
+		void AddCubeMappingTexture(std::initializer_list<CUBEMAP_INFO> mapping);
+		std::unordered_map<std::string, Texture*>& GetMappingTexture() { return m_MappingTexture; }
+		
 		bool GetIsNormalUV() const { return m_IsNormal_UV; }
 		void SetIsNormalUV(bool isnormal) { m_IsNormal_UV = isnormal; }
 
@@ -58,6 +61,8 @@ namespace HS_Engine
 		Texture* m_diffuseTexture = nullptr;
 		Texture* m_specularTexture = nullptr;
 
+		std::unordered_map<std::string, Texture*>m_MappingTexture;
+		
 		bool m_IsNormal_UV = false;
 	};
 

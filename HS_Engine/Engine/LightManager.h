@@ -27,12 +27,16 @@ namespace HS_Engine
 		friend class ObjectManager;
 		
 		LightManager() = default;
+		LightManager(int MAXLIGHT ,unsigned UniformBufferidx);
 		~LightManager();
 		void AddLight(Light* light);
+		void SetInit(int MAXLIGHT, unsigned UniformBUfferidx);
+		void LightUniformBufferUpdate() const;
 		void DeleteLight(std::string lightname);
 		void DeleteAllLight();
 		void DeleteLightQueue();
 		void RenderAll(double dt);
+		void RenderAllForFrameBuffer(double dt);
 		void UpdateLight();
 		void SetShader(std::shared_ptr<Shader> shader);
 		void ChangeAllLightShader(std::shared_ptr<Shader> shader);
@@ -47,8 +51,11 @@ namespace HS_Engine
 		std::vector<LightRawData> m_LightRawDatas;
 		std::queue<Light*> mNeedtoDeleteLight;
 		std::shared_ptr<Shader> m_LightShader;
+		std::shared_ptr<UniformBuffer> m_LightUniformBuffer;
 		int m_NumberOfLight = 0;
 		bool m_IsAllRotating = false;
+		int m_MaxLightCount;
+		unsigned int m_LightUniformIndex;
 	};
 
 

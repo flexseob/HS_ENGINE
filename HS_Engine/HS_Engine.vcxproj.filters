@@ -107,6 +107,9 @@
     <ClInclude Include="Engine\LightManager.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\SkyBox.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\VertexArrayData.cpp">
@@ -180,6 +183,9 @@
     </ClCompile>
     <ClCompile Include="Engine\TextureManager.cpp">
       <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\SkyBox.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

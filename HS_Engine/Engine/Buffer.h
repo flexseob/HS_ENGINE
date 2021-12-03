@@ -16,6 +16,8 @@ End Header --------------------------------------------------------*/
 #include <vector>
 #include <GL/glew.h>
 
+#include "Texture.h"
+
 namespace HS_Engine
 {
 	enum class DataType
@@ -104,6 +106,25 @@ namespace HS_Engine
 		HS_Engine::DescribeData m_Describe_Data;
 	};
 
+	class FrameBuffer
+	{
+	public:
+		FrameBuffer(int initTexturewidth, int initTextureheight);
+		~FrameBuffer();
+		void Bind() const;
+		void UnBind() const;
+		void Init();
+		void CreateFrameTexture(Texture* texture);
+		void DeleteBuffer()const;
+		Texture* GetFrameTexture() const;
+		
+		
+	private:
+		unsigned int m_FrameBuffer_ID = std::numeric_limits<unsigned int>::max();
+		unsigned int m_DepthRenderBuffer_ID = std::numeric_limits<unsigned int>::max();
+		Texture* m_Texture = nullptr;
+		HS_Engine::DescribeData m_Describe_Data;
+	};
 
 
 };

@@ -51,7 +51,7 @@ namespace HS_Engine
 		void Unbind() const;
 		void ErrorCode(const std::string& variable) const;
 
-		unsigned FindUniformLocation(const std::string& name);
+		unsigned FindUniformLocation(std::string name);
 		unsigned FindUniformBlockIndex(const std::string& name);
 		int GetUnformSizeByLocation(unsigned index);
 		unsigned int GetShaderID()const { return m_ShaderID; }
@@ -62,7 +62,8 @@ namespace HS_Engine
 		// 0 :vert 1:frag 2:geom
 		std::vector<std::pair<E_ShaderTypes,std::string>> m_ShaderPath;
 		std::vector<unsigned int> m_ShaderIDs;
-		std::unordered_map<unsigned int, std::string> m_UniformIDs;
+		//std::unordered_map<unsigned int, std::string> m_UniformIDs;
+		std::unordered_map<std::string, unsigned int> m_UniformIDs;
 		std::unordered_map<unsigned int, std::string> m_UniformBlockID;
 	};
 

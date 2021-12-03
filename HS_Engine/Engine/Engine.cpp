@@ -57,7 +57,6 @@ namespace HS_Engine
 				m_SceneManager.Update(deltatime);
 				if(m_SceneManager.IsCurrentSceneRunning())
 				m_ImguiManager.ImguiUpdate(deltatime);
-				
 			}
 		}
 		

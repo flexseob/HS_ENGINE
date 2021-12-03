@@ -12,6 +12,10 @@ Creation date : <09 / 11 / 21>
 End Header-------------------------------------------------------- */
 #pragma once
 
+namespace HS_Engine
+{
+	class Texture;
+}
 enum class E_RenderTypes
 {
 	NONE,
@@ -60,4 +64,38 @@ enum class E_UV_Entity_Types
 {
 	VERTEX_POS =0,
 	VERTEX_NORMAL,
+};
+
+enum class E_CUBE_MAP
+{
+	TOP = 0,
+	LEFT,
+	FRONT,
+	RIGHT,
+	BACK,
+	BOTTOM,
+};
+enum class E_Current_Shader
+{
+	PHONG_SHADING = 0,
+	PHONG_LIGHTING,
+	BLINN_SHADING,
+};
+
+enum class E_Environment_Mapping
+{
+	REFLECTION = 0,
+	REFRACTION,
+	MIX,
+};
+
+struct CUBEMAP_INFO
+{
+	E_CUBE_MAP Position;
+	HS_Engine::Texture* texture;
+};
+
+enum E_MeshType
+{
+	PATH, Precedural,
 };

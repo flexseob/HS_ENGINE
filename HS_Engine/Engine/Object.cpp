@@ -12,6 +12,7 @@ Creation date : <09 / 11 / 21>
 End Header-------------------------------------------------------- */
 #include "Object.h"
 
+#include "Engine.h"
 #include "Light.h"
 #include "Shader.h"
 
@@ -47,6 +48,39 @@ namespace HS_Engine
 				m_shader->FindUniformLocation("material.shininess");
 				m_shader->FindUniformLocation("material.emissive");
 			}
+
+		
+			if (GetObjData().m_material.IsExistDiffuseTexture())
+			{
+				m_shader->FindUniformLocation("diffuse_texture_isexist");
+				m_shader->FindUniformLocation("diffuse_texture");
+				m_shader->FindUniformLocation("gpu_calculation");
+				m_shader->FindUniformLocation("UV_mapping_mode");
+				m_shader->FindUniformLocation("UV_Entity_Normal");
+			}
+			if (GetObjData().m_material.IsExistSpecularTexture())
+			{
+				m_shader->FindUniformLocation("specular_texture_isexist");
+				m_shader->FindUniformLocation("specular_texture");
+				
+			}
+			if(GetIsEnvironmentMapping() == true)
+			{
+				m_shader->FindUniformLocation("TopFrame");
+				m_shader->FindUniformLocation("BottomFrame");
+				m_shader->FindUniformLocation("LeftFrame");
+				m_shader->FindUniformLocation("RightFrame");
+				m_shader->FindUniformLocation("FrontFrame");
+				m_shader->FindUniformLocation("BackFrame");
+				
+				m_shader->FindUniformLocation("EnvironmentMode");
+				m_shader->FindUniformLocation("isPhongshading");
+				m_shader->FindUniformLocation("isEnvironmentMapping");
+				m_shader->FindUniformLocation("isPhongshading");
+				m_shader->FindUniformLocation("RefractionIdx");
+				m_shader->FindUniformLocation("PhongShadingvalue");
+			}
+	
 		}
 		if (!m_shader_debug) return;
 		m_shader_debug->FindUniformLocation("model");
@@ -113,6 +147,16 @@ namespace HS_Engine
 		return m_RenderType;
 	}
 
+	E_Environment_Mapping Object::GetEnvironmentMode() const
+	{
+		return m_E_EnvironmentMappingMode;
+	}
+
+	void Object::SetFractionIndex(float index)
+	{
+		m_RefractionIdx = index;
+	}
+
 	void Object::SetShader(std::shared_ptr<Shader> shader)
 	{
 		m_shader = shader;
@@ -154,6 +198,18 @@ namespace HS_Engine
 	{
 		m_ObjData.m_material = *material;
 		m_Materialname = material->GetMaterialName();
+		if (GetIsEnvironmentMapping() == true)
+		{
+			auto& mTextureManager = Engine::GetObjectManager().GetTextureManager();
+			std::string objname = GetObjectName();
+			m_ObjData.m_material.AddCubeMappingTexture({ {E_CUBE_MAP::TOP,mTextureManager.GetTexture(objname + "TopFrame")},
+										{E_CUBE_MAP::BOTTOM,mTextureManager.GetTexture(objname + "BottomFrame")},
+										{E_CUBE_MAP::BACK,mTextureManager.GetTexture(objname + "BackFrame")},
+										{E_CUBE_MAP::FRONT,mTextureManager.GetTexture(objname + "FrontFrame")},
+										{E_CUBE_MAP::RIGHT,mTextureManager.GetTexture(objname + "RightFrame")},
+										{E_CUBE_MAP::LEFT,mTextureManager.GetTexture(objname + "LeftFrame")} });
+		
+		}
 	}
 
 	void Object::SetMaterialDiffuseTexture(Texture* texture)
@@ -195,42 +251,51 @@ namespace HS_Engine
 			if (GetObjData().m_material.IsExistDiffuseTexture())
 			{
 				GetObjData().m_material.GetDiffuseTexture()->Bind();
-				m_shader->FindUniformLocation("diffuse_texture_isexist");
 				m_shader->BindUniformVariable("diffuse_texture_isexist", true);
-
-				m_shader->FindUniformLocation("diffuse_texture");
 				m_shader->BindUniformVariable("diffuse_texture", static_cast<int>(GetObjData().m_material.GetDiffuseTexture()->GetTextureIdx()));
-
-				m_shader->FindUniformLocation("gpu_calculation");
 				m_shader->BindUniformVariable("gpu_calculation", GetMesh()->GetGPUCalucation());
-				
-				m_shader->FindUniformLocation("UV_mapping_mode");
 				m_shader->BindUniformVariable("UV_mapping_mode", static_cast<int>(GetMesh()->GetUVType()));
-				
-				m_shader->FindUniformLocation("UV_Entity_Normal");
 				m_shader->BindUniformVariable("UV_Entity_Normal", static_cast<int>(GetMesh()->GetUV_Entity_Types()));
 				
 			}
 			else
 			{
-				m_shader->FindUniformLocation("diffuse_texture_isexist");
+
 				m_shader->BindUniformVariable("diffuse_texture_isexist", false);
 			}
 			
 			if (GetObjData().m_material.IsExistSpecularTexture())
 			{
 				GetObjData().m_material.GetSpecularTexture()->Bind();
-				m_shader->FindUniformLocation("specular_texture_isexist");
 				m_shader->BindUniformVariable("specular_texture_isexist", true);
-
-				m_shader->FindUniformLocation("specular_texture");
 				m_shader->BindUniformVariable("specular_texture", static_cast<int>(GetObjData().m_material.GetSpecularTexture()->GetTextureIdx()));
 			}
 			else
 			{
-				m_shader->FindUniformLocation("specular_texture_isexist");
 				m_shader->BindUniformVariable("specular_texture_isexist", false);
 			}
+
+			if(GetIsEnvironmentMapping() == true)
+			{
+				m_shader->BindUniformVariable("isEnvironmentMapping", GetIsEnvironmentMapping());
+				for(auto& texture : GetObjData().m_material.GetMappingTexture())
+				{
+					texture.second->Bind();
+					m_shader->FindUniformLocation(texture.first);
+					const int texidx = static_cast<int>(texture.second->GetTextureIdx());
+					m_shader->BindUniformVariable(texture.first, texidx);
+					m_shader->BindUniformVariable("EnvironmentMode", static_cast<int>(GetEnvironmentMode()));
+					m_shader->BindUniformVariable("RefractionIdx", GetRefractionIndex());
+					m_shader->BindUniformVariable("isPhongshading", m_IsPhongShading_with);
+					m_shader->BindUniformVariable("PhongShadingvalue", m_PhongShadingValue);
+				}
+				
+			}else
+			{
+				m_shader->BindUniformVariable("isEnvironmentMapping", false);
+			}
+
+			
 		}
 		
 		m_shader->BindUniformVariable("model", m_ObjData.m_ModelMat);
@@ -268,6 +333,41 @@ namespace HS_Engine
 		m_RenderType = m_mesh->GetRenderType();
 	}
 
+	void Object::SetEnvironmentMapping(bool Isenvironment)
+	{
+		if (m_IsEnvironmentMapping != true && Isenvironment == true)
+		{
+			m_IsEnvironmentMapping = Isenvironment;
+			auto& mTextureManager = HS_Engine::Engine::GetObjectManager().GetTextureManager();
+			mTextureManager.AddTextureInternal(GetObjectName() + "FrontFrame", new HS_Engine::Texture(0x8, 1600, 900));
+			mTextureManager.AddTextureInternal(GetObjectName() + "TopFrame", new HS_Engine::Texture(0x9, 1600, 900));
+			mTextureManager.AddTextureInternal(GetObjectName() + "BottomFrame", new HS_Engine::Texture(0xA, 1600, 900));
+			mTextureManager.AddTextureInternal(GetObjectName() + "LeftFrame", new HS_Engine::Texture(0xB, 1600, 900));
+			mTextureManager.AddTextureInternal(GetObjectName() + "RightFrame", new HS_Engine::Texture(0xC, 1600, 900));
+			mTextureManager.AddTextureInternal(GetObjectName() + "BackFrame", new HS_Engine::Texture(0xD, 1600, 900));
+		}
+		else if(m_IsEnvironmentMapping == true && Isenvironment == false)
+		{
+			m_IsEnvironmentMapping = false;
+		}
+	}
+
+	void Object::SetEnvironmentMode(E_Environment_Mapping mode)
+	{
+		m_E_EnvironmentMappingMode = mode;
+	}
+
+	void Object::SetIsEnvironmentPhongShading(bool phongshading)
+	{
+		m_IsPhongShading_with = phongshading;
+	}
+
+	void Object::ReleaseShaderPointer()
+	{
+		m_shader.reset();
+		m_shader_debug.reset();
+	}
+
 	glm::vec3 Object::GetPosition() const
 	{
 		return m_ObjData.m_Position;
@@ -278,6 +378,11 @@ namespace HS_Engine
 		return m_ObjData.m_Scale;
 	}
 
+	float Object::GetRefractionIndex() const
+	{
+		return m_RefractionIdx;
+	}
+
 	bool Object::GetIsDisplayDebug() const
 	{
 		return m_IsDisplayDebug;
@@ -286,6 +391,16 @@ namespace HS_Engine
 	void Object::SetIsDisplayDebug(bool Isdebug)
 	{
 		m_IsDisplayDebug = Isdebug;
+	}
+
+	float Object::GetPhongShadingValue() const
+	{
+		return 	m_PhongShadingValue;
+	}
+
+	void Object::SetPhongShadingValue(float value)
+	{
+		m_PhongShadingValue = value;
 	}
 
 	Mesh* Object::GetMesh() const

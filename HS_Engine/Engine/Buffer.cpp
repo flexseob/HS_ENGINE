@@ -180,5 +180,55 @@ namespace HS_Engine
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 
+	FrameBuffer::FrameBuffer(int initTexturewidth, int initTextureheight)
+	{
+		glGenFramebuffers(1,&m_FrameBuffer_ID);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer_ID);
+		
+		glGenRenderbuffers(1,&m_DepthRenderBuffer_ID);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_DepthRenderBuffer_ID);
+		glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT, initTexturewidth, initTextureheight);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthRenderBuffer_ID);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	}
 
+	FrameBuffer::~FrameBuffer()
+	{
+		glDeleteBuffers(1, &m_FrameBuffer_ID);
+		delete m_Texture;
+		m_Texture = nullptr;
+	}
+
+	void FrameBuffer::Bind() const
+	{
+
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer_ID);
+	}
+
+	void FrameBuffer::UnBind() const
+	{
+		//glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FrameBuffer_ID);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void FrameBuffer::Init()
+	{
+
+	}
+
+	void FrameBuffer::CreateFrameTexture(Texture* texture)
+	{
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->GetTextureID(), 0);
+
+	}
+
+
+	Texture* FrameBuffer::GetFrameTexture() const
+	{
+		return m_Texture;
+	}
 }

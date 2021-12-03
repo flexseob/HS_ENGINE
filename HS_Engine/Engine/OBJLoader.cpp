@@ -637,7 +637,7 @@ namespace HS_Engine
 		float uc = 0;
 		float vc = 0;
 
-		// POSITIVE X
+		// POSITIVE X right
 		if (bool(isXPositive) && (absX >= absY) && (absX >= absZ))
 		{
 			maxAxis = absX;
@@ -645,7 +645,7 @@ namespace HS_Engine
 			vc = y;
 		}
 
-		// NEGATIVE X
+		// NEGATIVE X left
 		else if (!bool(isXPositive) && absX >= absY && absX >= absZ)
 		{
 
@@ -654,7 +654,7 @@ namespace HS_Engine
 			vc = y;
 		}
 
-		// POSITIVE Y
+		// POSITIVE Y top
 		else if (bool(isYPositive) && absY >= absX && absY >= absZ)
 		{
 			maxAxis = absY;
@@ -662,7 +662,7 @@ namespace HS_Engine
 			vc = -z;
 		}
 
-		// NEGATIVE Y
+		// NEGATIVE Y bottom
 		else if (!bool(isYPositive) && absY >= absX && absY >= absZ)
 		{
 			maxAxis = absY;
@@ -670,7 +670,7 @@ namespace HS_Engine
 			vc = z;
 		}
 
-		// POSITIVE Z
+		// POSITIVE Z front
 		else if (bool(isZPositive) && absZ >= absX && absZ >= absY)
 		{
 			maxAxis = absZ;
@@ -678,7 +678,7 @@ namespace HS_Engine
 			vc = y;
 		}
 
-		// NEGATIVE Z
+		// NEGATIVE Z back
 		else if (!bool(isZPositive) && absZ >= absX && absZ >= absY)
 		{
 			maxAxis = absZ;

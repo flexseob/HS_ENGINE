@@ -14,6 +14,7 @@ End Header-------------------------------------------------------- */
 #include "Material.h"
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <glm/vec2.hpp>
 
@@ -95,6 +96,45 @@ namespace HS_Engine
 	bool Material::IsExistSpecularTexture() const
 	{
 		return m_specularTexture;
+	}
+
+	void Material::AddCubeMappingTexture(std::initializer_list<CUBEMAP_INFO> mapping)
+	{
+		for(auto info : mapping)
+		{
+			std::string name;
+			switch(info.Position)
+			{
+			case E_CUBE_MAP::TOP:
+				name = "TopFrame";
+				break;
+			case E_CUBE_MAP::LEFT: 
+				name = "LeftFrame";
+				break;
+			case E_CUBE_MAP::FRONT: 
+				name = "FrontFrame";
+				break;
+			case E_CUBE_MAP::RIGHT:
+				name = "RightFrame";
+				break;
+			case E_CUBE_MAP::BACK:
+				name = "BackFrame";
+				break;
+			case E_CUBE_MAP::BOTTOM: 
+				name = "BottomFrame";
+				break;
+			default: break;
+			}
+			auto iter = m_MappingTexture.find(name);
+			if (iter == m_MappingTexture.end())
+				m_MappingTexture.insert({ name, info.texture });
+			else
+			{
+				//std::cout << "Existing mapping texture " + name << " it was erased old one, Now add new one" << std::endl;
+				m_MappingTexture.erase(name);
+				m_MappingTexture.insert({ name, info.texture });
+			}
+		}		
 	}
 
 	Texture* Material::GetDiffuseTexture() 

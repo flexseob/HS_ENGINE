@@ -16,6 +16,11 @@ End Header-------------------------------------------------------- */
 #include <random>
 namespace HS_Engine
 {
+	LightManager::LightManager(int MAXLIGHT, unsigned UniformBufferidx) : m_MaxLightCount(MAXLIGHT) , m_LightUniformIndex(UniformBufferidx)
+	{
+		m_LightUniformBuffer = std::make_shared<UniformBuffer>(GetLightRawDatas().data(), static_cast<unsigned>(m_MaxLightCount * sizeof(LightRawData)), m_LightUniformIndex);
+	}
+
 	LightManager::~LightManager()
 	{
 		DeleteAllLight();
@@ -97,6 +102,18 @@ namespace HS_Engine
 		
 	}
 
+	void LightManager::SetInit(int MAXLIGHT, unsigned UniformBUfferidx)
+	{
+		m_MaxLightCount = MAXLIGHT;
+		m_LightUniformIndex = UniformBUfferidx;
+		m_LightUniformBuffer = std::make_shared<UniformBuffer>(GetLightRawDatas().data(), static_cast<unsigned>(m_MaxLightCount * sizeof(LightRawData)), m_LightUniformIndex);
+	}
+
+	void LightManager::LightUniformBufferUpdate() const
+	{
+		m_LightUniformBuffer->BufferData(m_LightRawDatas.data(), sizeof(HS_Engine::LightRawData) * static_cast<unsigned>(m_LightRawDatas.size()));
+	}
+
 	void LightManager::DeleteLight(std::string lightname)
 	{
 		HS_Engine::ObjectManager& mObjectManager = HS_Engine::Engine::GetObjectManager();
@@ -128,7 +145,6 @@ namespace HS_Engine
 			delete objptr;
 			object.second = nullptr;
 		}
-
 		m_Lights.clear();
 		m_LightRawDatas.clear();
 		m_NumberOfLight = 0;
@@ -158,6 +174,20 @@ namespace HS_Engine
 			obj->PostRender(dt);
 		}
 		
+	}
+
+	void LightManager::RenderAllForFrameBuffer(double dt)
+	{
+
+
+		for (auto& light : m_Lights)
+		{
+			Light* obj = light.second;
+			obj->PreRender();
+			obj->Render();
+		
+		}
+
 	}
 
 	void LightManager::UpdateLight()

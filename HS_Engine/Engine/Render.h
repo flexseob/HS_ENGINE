@@ -26,6 +26,7 @@ namespace HS_Engine
 		static void Shutdown();
 		static void SetClearColor(const glm::vec4& color);
 		static void ClearScreen();
+		static void ClearColorBufferScreen();
 
 		static void DrawSolidLine(std::shared_ptr<VertexArray> vertex_array);
 		static void DrawIndexed(std::shared_ptr<VertexArray> vertex_array);
