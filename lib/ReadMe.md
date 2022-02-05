@@ -39,3 +39,12 @@ Description: Dear ImGui is a bloat-free graphical user interface library for C++
 Version: 1.78#2
 
 URL: https://github.com/ocornut/imgui
+
+
+# assimp
+Description : Open Asset Import Library (assimp)
+
+Copyright (c) 2006-2021, assimp team
+All rights reserved.
+
+URL:https://github.com/assimp
