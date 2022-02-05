@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 
 #include "Shader.h"
 #include <fstream>
@@ -408,6 +408,7 @@ namespace HS_Engine
 		if (GL_FALSE == lnk_status) 
 		{
 			std::cerr << "Failed to link shader program\n";
+			std::cerr << m_ShaderPath.at(0).second <<", " << m_ShaderPath.at(1).second << std::endl;
 			glGetProgramInfoLog(m_ShaderID, lnk_log, NULL, error_log);
 			std::cout << error_log << std::endl;
 		}
@@ -685,17 +686,34 @@ namespace HS_Engine
 
 	unsigned Shader::FindUniformBlockIndex(const std::string& name)
 	{
-		for (auto& uniformid : m_UniformBlockID)
+		auto find = m_UniformBlockID.find(name);
+		if(find != m_UniformBlockID.end())
 		{
-			if (uniformid.second == name)
-			{
-				return uniformid.first;
-			}
+			return find->second;
 		}
-		unsigned uniformindex = glGetUniformBlockIndex(m_ShaderID, name.c_str());
-		m_UniformBlockID.insert(std::pair<unsigned, std::string>(uniformindex, name));
+		else
+		{
+			unsigned uniformindex = glGetUniformBlockIndex(m_ShaderID, name.c_str());
+			m_UniformBlockID.insert({name, uniformindex});
+			if (uniformindex == std::numeric_limits<unsigned>::max())
+			{
+				std::cout << m_ShaderPath[0].second << ".vert : " << name << " doesn't exist!" << std::endl;
+			}
+			return uniformindex;
+		}		
+	}
 
-		return uniformindex;
+	void Shader::SetUniformBlockBinding(const std::string& variable, unsigned binding_num) const
+	{
+		auto find = m_UniformBlockID.find(variable);
+		if (find != m_UniformBlockID.end())
+		{
+			glUniformBlockBinding(m_ShaderID, find->second, binding_num);
+		}
+		else
+		{
+			std::cout << m_ShaderPath[0].second << ".vert or .frag : " << variable << " doesn't exist! : SetUniformBlockBinding" << std::endl;
+		}
 	}
 
 	int Shader::GetUnformSizeByLocation(unsigned index)
@@ -703,5 +721,15 @@ namespace HS_Engine
 		GLint blocksize;
 		glGetActiveUniformBlockiv(m_ShaderID, index, GL_UNIFORM_BLOCK_DATA_SIZE, &blocksize);
 		return blocksize;
+	}
+
+	void Shader::SetIsDebugShader(bool IsDebug)
+	{
+		mIsDebugShader = IsDebug;
+	}
+
+	bool Shader::GetIsDebugShader() const
+	{
+		return mIsDebugShader;
 	}
 }

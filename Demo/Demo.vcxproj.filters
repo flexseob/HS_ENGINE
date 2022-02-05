@@ -21,9 +21,15 @@
     <ClCompile Include="Scene\Demo_DynamicMapping.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Scene\Demo_HybridRendering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\Demo_DynamicMapping.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\Demo_HybridRendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

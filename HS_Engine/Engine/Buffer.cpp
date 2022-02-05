@@ -1,7 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
-
+End Header--------------------------------------------------------*/
 #include "Buffer.h"
 
 #include <iostream>
@@ -171,7 +170,7 @@ namespace HS_Engine
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 
-	FrameBuffer::FrameBuffer(int initTexturewidth, int initTextureheight)
+	FrameBuffer::FrameBuffer(int initTexturewidth, int initTextureheight) : m_TextureWidth(initTexturewidth), m_TextureHeight(initTextureheight)
 	{
 		glGenFramebuffers(1,&m_FrameBuffer_ID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer_ID);
@@ -180,11 +179,28 @@ namespace HS_Engine
 		glBindRenderbuffer(GL_RENDERBUFFER, m_DepthRenderBuffer_ID);
 		glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT, initTexturewidth, initTextureheight);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthRenderBuffer_ID);
+
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-		
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	}
+
+	FrameBuffer::FrameBuffer(int initTexturewidth, int initTextureheight, GLenum attachment) : m_TextureWidth(initTexturewidth), m_TextureHeight(initTextureheight)
+	{
+		glGenFramebuffers(1, &m_FrameBuffer_ID);
+		glBindFramebuffer(attachment, m_FrameBuffer_ID);
+
+		glGenRenderbuffers(1, &m_DepthRenderBuffer_ID);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_DepthRenderBuffer_ID);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, initTexturewidth, initTextureheight);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthRenderBuffer_ID);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		
 	}
 
 	FrameBuffer::~FrameBuffer()
@@ -194,27 +210,63 @@ namespace HS_Engine
 		m_Texture = nullptr;
 	}
 
-	void FrameBuffer::Bind() const
+	void FrameBuffer::Bind() const noexcept
 	{
-
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer_ID);
 	}
 
-	void FrameBuffer::UnBind() const
+	void FrameBuffer::BindReadBuffer() const noexcept
+	{
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FrameBuffer_ID);
+	}
+
+	void FrameBuffer::UnBind() const noexcept
 	{
 		//glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FrameBuffer_ID);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void FrameBuffer::Init()
+	void FrameBuffer::BindDrawBuffer() const noexcept
 	{
-
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	}
+
+	void FrameBuffer::BlitFrameBuffer() const noexcept
+	{
+		glBlitFramebuffer(0, 0, m_TextureWidth, m_TextureHeight, 0, 0, m_TextureWidth, m_TextureHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	}
+
+	void FrameBuffer::Init(int atttachment)
+	{
+		const int attachment_count = atttachment + 1;
+		if(attachment_count < 16)
+		{
+			m_DrawBuffers.resize(attachment_count);
+		}
+		else
+		{
+			std::cout << "FrameBuffer Attachment count cannot more than 15" << std::endl;
+			return;
+		}
+			
+		for(int i = 0; i < attachment_count; ++i)
+		{
+			m_DrawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
+		}
+		
+		glDrawBuffers(attachment_count, m_DrawBuffers.data());
+	}
+
 
 	void FrameBuffer::CreateFrameTexture(Texture* texture)
 	{
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->GetTextureID(), 0);
 
+	}
+
+	void FrameBuffer::CreateFrameTexture(Texture* texture, GLenum attachment) const noexcept 
+	{
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture->GetTextureID(), 0);
 	}
 
 

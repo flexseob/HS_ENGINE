@@ -10,7 +10,7 @@ End Header-------------------------------------------------------- */
 
 constexpr unsigned int MaxLight = 16;
 
-HS_Engine::Camera* HS_Engine::Scene::m_Camera = new HS_Engine::Camera{ {0.f,1.57f,11.65f } };
+
 void Demo_DynamicMapping::Load()
 {
 	HS_Engine::ObjectManager& mObjectManager = HS_Engine::Engine::GetObjectManager();

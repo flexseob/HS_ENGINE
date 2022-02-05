@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 #pragma once
 #include <string>
 
@@ -11,10 +11,10 @@ namespace HS_Engine
 	class Scene
 	{
 	public:
-		virtual void Load() {}
-		virtual void Update(double dt) {}
-		virtual void UnLoad() {}
-		virtual void ImGuiUpdate() {}
+		virtual void Load() = 0;
+		virtual void Update(double dt) = 0;
+		virtual void UnLoad() = 0;
+		virtual void ImGuiUpdate() = 0;
 		virtual std::string GetSceneName() { return "Default Sence"; }
 		virtual ~Scene() = default;
 	protected:

@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 #include "Texture.h"
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION    
@@ -23,7 +23,7 @@ namespace HS_Engine
 		int nrComponents;
 		glActiveTexture(GL_TEXTURE0 + m_texture_idx);
 		unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
-		//unsigned char* data = nullptr;s
+		
 		if (data)
 		{
 			GLenum format =0;
@@ -40,12 +40,6 @@ namespace HS_Engine
 				format = GL_RGBA;
 			}
 			glBindTexture(GL_TEXTURE_2D, m_texture_ID);
-
-
-			//glEnable(GL_TEXTURE_2D);
-			//glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
-			//
-		
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -74,7 +68,6 @@ namespace HS_Engine
 		int nrComponents;
 		glActiveTexture(GL_TEXTURE0 + m_texture_idx);
 		unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
-		//unsigned char* data = nullptr;s
 		if (data)
 		{
 			GLenum format = 0;
@@ -91,12 +84,6 @@ namespace HS_Engine
 				format = GL_RGBA;
 			}
 			glBindTexture(GL_TEXTURE_2D, m_texture_ID);
-
-
-			//glEnable(GL_TEXTURE_2D);
-			//glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
-			//
-
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -143,6 +130,40 @@ namespace HS_Engine
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	}
+
+	Texture::Texture(unsigned texture_idx, int width, int height, unsigned internalformat)
+	{
+		if (texture_idx <= 31)
+			m_texture_idx = texture_idx;
+		else
+		{
+			std::cout << "Texture index could not be larger than 31!!" << std::endl;
+		}
+		glGenTextures(1, &m_texture_ID);
+		glBindTexture(GL_TEXTURE_2D, m_texture_ID);
+		glTexImage2D(
+			GL_TEXTURE_2D, 0, internalformat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL
+		);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);		
+	}
+
+	Texture::Texture(unsigned texture_idx, int width, int height, unsigned internalformat, int depth)
+	{
+		if (texture_idx <= 31)
+			m_texture_idx = texture_idx;
+		else
+		{
+			std::cout << "Texture index could not be larger than 31!!" << std::endl;
+		}
+		glGenTextures(1, &m_texture_ID);
+		glBindTexture(GL_TEXTURE_2D, m_texture_ID);
+		glTexImage2D(
+			GL_TEXTURE_2D, 0, internalformat, width, height, 0, depth, GL_FLOAT, NULL
+		);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
 	Texture::~Texture()

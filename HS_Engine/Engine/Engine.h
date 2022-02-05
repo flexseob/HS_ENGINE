@@ -1,12 +1,11 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
-
+End Header--------------------------------------------------------*/
 #pragma once
 #include <chrono>
 #include <memory>
 #include "Window.h"
-#include "DemoState.h"
+
 #include "ObjectManager.h"
 #include "../Imgui/ImguiManager.h"
 #include "../Engine/SceneManager.h"
@@ -43,7 +42,7 @@ namespace HS_Engine
 		ImguiManager m_ImguiManager;
 		SceneManager m_SceneManager;
 		ObjectManager m_ObjectManager;
-		float m_FPS = 60;
+		float m_FPS = 30;
 	public:
 		static Engine& Instance() { static Engine Instance; return Instance; }
 		static Window* GetWindow()

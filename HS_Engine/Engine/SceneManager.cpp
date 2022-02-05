@@ -1,8 +1,10 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 
 #include "SceneManager.h"
+
+#include <iostream>
 #include <memory>
 #include <GL/glew.h>
 

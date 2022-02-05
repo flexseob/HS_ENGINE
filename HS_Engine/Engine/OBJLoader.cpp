@@ -1,7 +1,9 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
+//#pragma comment(lib, "assimp.lib")
 #include "OBJLoader.h"
+
 
 #include <chrono>
 #include <fstream>
@@ -12,6 +14,9 @@ End Header-------------------------------------------------------- */
 #include <iostream>
 #include <unordered_set>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 #include "../Engine/Mesh/ProceduralMesh.h"
 
 namespace HS_Engine
@@ -19,13 +24,15 @@ namespace HS_Engine
 
 	void ObjectLoader::LoadObjFile(std::string path)
 	{
+		//LoadOBJfileAssimp(path);
+		ObjectLoader::LoadOBJfileAssimp(path);
 		std::ifstream objfile(path, std::ios::in);
 
-		if(objfile.good() == false)
+		if (objfile.good() == false)
 		{
 			throw std::runtime_error(path + " is not exist");
 		}
-		
+
 		std::string line, token;
 
 		getline(objfile, line);
@@ -33,7 +40,7 @@ namespace HS_Engine
 		while (true)
 		{
 			size_t pos = line.find_first_of("#");
-			if (pos != std::string::npos) 
+			if (pos != std::string::npos)
 			{
 				line = line.substr(0, pos);
 			}
@@ -92,23 +99,23 @@ namespace HS_Engine
 						{
 							m_facesData.push_back(firstVert);
 							int before = i - 1;
-							m_facesData.push_back(ObjectLoader::ObjectVertex( this, parts[before]));
-							m_facesData.push_back(ObjectLoader::ObjectVertex( this, parts[i]));
+							m_facesData.push_back(ObjectLoader::ObjectVertex(this, parts[before]));
+							m_facesData.push_back(ObjectLoader::ObjectVertex(this, parts[i]));
 						}
 					}
 				}
 			}
-			if(objfile.eof())
+			if (objfile.eof())
 			{
 				break;
 			}
-				getline(objfile, line);
-			}
-
-			AdjustRange();
-		         
-		
+			getline(objfile, line);
 		}
+
+		AdjustRange();
+
+
+	}
 
 	void ObjectLoader::GenerateVertexNormal()
 	{
@@ -127,12 +134,12 @@ namespace HS_Engine
 			glm::vec3 b = p3 - p1;
 			//use cross product
 			glm::vec3 n = glm::normalize(glm::cross(a, b));
-			
+
 			//n *= -1.f;
-			for(size_t j = i; j<i+3; j++)
+			for (size_t j = i; j < i + 3; j++)
 			{
 				auto check = temp.find(m_facesData[j].m_pIdx);
-				if(check == temp.end())
+				if (check == temp.end())
 				{
 					m_NormalData[m_facesData[j].m_pIdx] += n;
 					temp[m_facesData[j].m_pIdx].push_back(n);
@@ -140,14 +147,14 @@ namespace HS_Engine
 				else
 				{
 					bool IsExist = false;
-					for(auto normal : check->second)
+					for (auto normal : check->second)
 					{
-						if(abs(normal.x - n.x)< EPSILON && abs(normal.y- n.y) < EPSILON && abs(normal.z - n.z) < EPSILON)
+						if (abs(normal.x - n.x) < EPSILON && abs(normal.y - n.y) < EPSILON && abs(normal.z - n.z) < EPSILON)
 						{
 							IsExist = true;
 						}
-					} 
-					if(!IsExist)
+					}
+					if (!IsExist)
 					{
 						m_NormalData[m_facesData[j].m_pIdx] += n;
 						temp[m_facesData[j].m_pIdx].push_back(n);
@@ -159,13 +166,13 @@ namespace HS_Engine
 			m_facesData[1 + i].m_nIdx = m_facesData[1 + i].m_pIdx;
 			m_facesData[2 + i].m_nIdx = m_facesData[2 + i].m_pIdx;
 		}
-		
+
 		//average
-		for (unsigned int i = 0; i < m_NormalData.size(); i++) 
+		for (unsigned int i = 0; i < m_NormalData.size(); i++)
 		{
 			m_NormalData[i] = glm::normalize(m_NormalData[i]);
 		}
-		
+
 	}
 
 
@@ -173,9 +180,9 @@ namespace HS_Engine
 	{
 		mesh->ClearDataByFaceNormal();
 		int idx = 0;
-		 HS_Engine::Mesh::MeshData& meshdata = mesh->m_MeshDataByFaceNormal;
-		
-		for(size_t i = 0; i < m_facesData.size(); i += 3)
+		HS_Engine::Mesh::MeshData& meshdata = mesh->m_MeshDataByFaceNormal;
+
+		for (size_t i = 0; i < m_facesData.size(); i += 3)
 		{
 			const glm::vec3& p1 = m_VertexData[m_facesData[i].m_pIdx];
 			const glm::vec3& p2 = m_VertexData[m_facesData[i + 1].m_pIdx];
@@ -185,22 +192,22 @@ namespace HS_Engine
 			glm::vec3 b = p3 - p1;
 			//use cross product
 			glm::vec3 n = glm::normalize(glm::cross(a, b));
-			
+
 			const glm::vec3 center_of_triangle = (p1 + p2 + p3) / 3.f;
 
 			meshdata.m_DebugNormalData.m_Vertexs.push_back(center_of_triangle.x);
 			meshdata.m_DebugNormalData.m_Vertexs.push_back(center_of_triangle.y);
 			meshdata.m_DebugNormalData.m_Vertexs.push_back(center_of_triangle.z);
 
-				
+
 			meshdata.m_Vertexs.push_back(p1.x);
 			meshdata.m_Vertexs.push_back(p1.y);
 			meshdata.m_Vertexs.push_back(p1.z);
-		
+
 			meshdata.m_Vertexs.push_back(p2.x);
 			meshdata.m_Vertexs.push_back(p2.y);
 			meshdata.m_Vertexs.push_back(p2.z);
-									
+
 			meshdata.m_Vertexs.push_back(p3.x);
 			meshdata.m_Vertexs.push_back(p3.y);
 			meshdata.m_Vertexs.push_back(p3.z);
@@ -225,7 +232,7 @@ namespace HS_Engine
 			center.push_back(centroidVec2);
 			center.push_back(centroidVec3);
 
-			for(auto& cen : center)
+			for (auto& cen : center)
 			{
 				uv = CreateSphericalUV(cen);
 				meshdata.m_TexCoords_SPHERICAL.push_back(uv.x);
@@ -240,7 +247,7 @@ namespace HS_Engine
 
 			center.clear();
 
-			for(int i=0; i < 3; ++i)
+			for (int i = 0; i < 3; ++i)
 			{
 				uv = CreateSphericalUV(n);
 				meshdata.m_TexCoords_SPHERICAL_NORMAL.push_back(uv.x);
@@ -252,17 +259,17 @@ namespace HS_Engine
 				meshdata.m_TexCoords_CUBE_MAPPED_NORMAL.push_back(uv.x);
 				meshdata.m_TexCoords_CUBE_MAPPED_NORMAL.push_back(uv.y);
 			}
-			
-			for(int j=0; j <3; ++j)
+
+			for (int j = 0; j < 3; ++j)
 			{
 				meshdata.m_Normals.push_back(n.x);
 				meshdata.m_Normals.push_back(n.y);
 				meshdata.m_Normals.push_back(n.z);
 			}
 
-			for(int t=0; t<3; t++)
+			for (int t = 0; t < 3; t++)
 			{
-				meshdata.m_Faces.push_back(idx+t);
+				meshdata.m_Faces.push_back(idx + t);
 			}
 
 			idx += 3;
@@ -273,13 +280,13 @@ namespace HS_Engine
 	{
 		mesh->ClearDataByVertexNormal();
 
-		std::map<std::tuple<int,int,int>, unsigned int> vertexMap;
-		for (ObjectVertex& vert : m_facesData) 
+		std::map<std::tuple<int, int, int>, unsigned int> vertexMap;
+		for (ObjectVertex& vert : m_facesData)
 		{
-			std::tuple<int,int,int> vertStr = vert.tupledata();
+			std::tuple<int, int, int> vertStr = vert.tupledata();
 			auto iter = vertexMap.find(vertStr);
 
-			if (iter == vertexMap.end()) 
+			if (iter == vertexMap.end())
 			{
 				unsigned vIdx = static_cast<unsigned>(mesh->m_MeshDataByVertexNormal.m_Vertexs.size() / 3);
 				glm::vec3& vertex = m_VertexData[vert.m_pIdx];
@@ -287,38 +294,38 @@ namespace HS_Engine
 				mesh->m_MeshDataByVertexNormal.m_Vertexs.push_back(vertex.x);
 				mesh->m_MeshDataByVertexNormal.m_Vertexs.push_back(vertex.y);
 				mesh->m_MeshDataByVertexNormal.m_Vertexs.push_back(vertex.z);
-				
+
 				glm::vec3& normal = m_NormalData[vert.m_nIdx];
 				mesh->m_MeshDataByVertexNormal.m_Normals.push_back(normal.x);
 				mesh->m_MeshDataByVertexNormal.m_Normals.push_back(normal.y);
 				mesh->m_MeshDataByVertexNormal.m_Normals.push_back(normal.z);
 
-				
 
-				
 
-				
+
+
+
 				if (m_TexData.empty() == false)
 				{
 					glm::vec2& texcoord = m_TexData[vert.m_tcIdx];
 					mesh->m_MeshDataByVertexNormal.m_TexCoords.push_back(texcoord.x);
 					mesh->m_MeshDataByVertexNormal.m_TexCoords.push_back(texcoord.y);
 				}
-				
+
 
 
 				mesh->m_MeshDataByVertexNormal.m_Faces.push_back(static_cast<unsigned int>(vIdx));
 				vertexMap[vertStr] = static_cast<unsigned int>(vIdx);
 			}
-			else 
+			else
 			{
 				mesh->m_MeshDataByVertexNormal.m_Faces.push_back(iter->second);
 			}
 		}
 
-		
 
-		
+
+
 	}
 
 	void ObjectLoader::ConvertDataFormatMeshByVertexNormal(Mesh* mesh)
@@ -326,7 +333,7 @@ namespace HS_Engine
 		mesh->ClearDataByVertexNormal();
 
 		std::map<std::tuple<int, int, int>, unsigned int> vertexMap;
-	
+
 		for (ObjectVertex& vert : m_facesData)
 		{
 			std::tuple<int, int, int> vertStr = vert.tupledata();
@@ -336,7 +343,7 @@ namespace HS_Engine
 			{
 				unsigned vIdx = static_cast<unsigned>(mesh->m_MeshDataByVertexNormal.m_Vertexs.size() / 3);
 				auto& MeshData = mesh->m_MeshDataByVertexNormal;
-				
+
 				const glm::vec3& vertex = m_VertexData[vert.m_pIdx];
 
 				MeshData.m_Vertexs.push_back(vertex.x);
@@ -349,7 +356,7 @@ namespace HS_Engine
 				MeshData.m_Normals.push_back(normal.y);
 				MeshData.m_Normals.push_back(normal.z);
 
-				
+
 				MeshData.m_DebugNormalData.m_Vertexs.push_back(vertex.x);
 				MeshData.m_DebugNormalData.m_Vertexs.push_back(vertex.y);
 				MeshData.m_DebugNormalData.m_Vertexs.push_back(vertex.z);
@@ -359,8 +366,8 @@ namespace HS_Engine
 				MeshData.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.x);
 				MeshData.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.y);
 				MeshData.m_DebugNormalData.m_Vertexs.push_back(normal_other_point.z);
-				
-				
+
+
 				if (m_TexData.empty() == false)
 				{
 					if (vert.m_tcIdx != -1)
@@ -370,7 +377,7 @@ namespace HS_Engine
 						MeshData.m_TexCoords.push_back(texcoord.y);
 					}
 				}
-				glm::vec3 normVertex = glm::normalize(glm::vec3((vertex.x + 1.0f)/2.f,(vertex.y +1.0f) / 2.f,(vertex.z +1.0f) / 2.f));
+				glm::vec3 normVertex = glm::normalize(glm::vec3((vertex.x + 1.0f) / 2.f, (vertex.y + 1.0f) / 2.f, (vertex.z + 1.0f) / 2.f));
 				float theta(0.0f);
 				float z(0.0f);
 				float phi(0.0f);
@@ -388,7 +395,7 @@ namespace HS_Engine
 				////Cylindical
 				uv = CreateCylindricalUV(centroidVec);
 
-				
+
 				MeshData.m_TexCoords_CYLINDRICAL.push_back(uv.x);
 				MeshData.m_TexCoords_CYLINDRICAL.push_back(uv.y);
 
@@ -401,7 +408,7 @@ namespace HS_Engine
 
 				// cubemap
 				uv = CreateCubeMapUV(centroidVec);
-				
+
 				MeshData.m_TexCoords_CUBE_MAPPED.push_back(uv.s);
 				MeshData.m_TexCoords_CUBE_MAPPED.push_back(uv.t);
 
@@ -417,7 +424,7 @@ namespace HS_Engine
 				centroidVec = glm::normalize(normal);
 
 				//Cylindical
-				 uv = CreateCylindricalUV(centroidVec);
+				uv = CreateCylindricalUV(centroidVec);
 
 				MeshData.m_TexCoords_CYLINDRICAL_NORMAL.push_back(uv.x);
 				MeshData.m_TexCoords_CYLINDRICAL_NORMAL.push_back(uv.y);
@@ -433,8 +440,8 @@ namespace HS_Engine
 
 				MeshData.m_TexCoords_CUBE_MAPPED_NORMAL.push_back(uv.s);
 				MeshData.m_TexCoords_CUBE_MAPPED_NORMAL.push_back(uv.t);
-				
-				
+
+
 				mesh->m_MeshDataByVertexNormal.m_Faces.push_back(static_cast<unsigned int>(vIdx));
 				vertexMap[vertStr] = static_cast<unsigned int>(vIdx);
 			}
@@ -442,10 +449,10 @@ namespace HS_Engine
 			{
 				mesh->m_MeshDataByVertexNormal.m_Faces.push_back(iter->second);
 			}
-			
+
 		}
 
-		
+
 	}
 
 
@@ -457,15 +464,15 @@ namespace HS_Engine
 		GenerateVertexNormal();
 		ConvertDataFormatMeshByVertexNormal(newmesh);
 		newmesh->SetIndexBufferCount(static_cast<unsigned>(m_facesData.size()));
-		
+
 		auto endTime = std::chrono::high_resolution_clock::now();
 
 		double timeDuration = std::chrono::duration< double, std::milli >(endTime - startTime).count();
 
-		std::cout <<"\""<< path << "\"" << " OBJ file read in "
+		std::cout << "\"" << path << "\"" << " OBJ file read in "
 			<< timeDuration
 			<< "  milli seconds." << std::endl;
-		
+
 		return newmesh;
 	}
 
@@ -491,6 +498,8 @@ namespace HS_Engine
 		return newmesh;
 	}
 
+	
+
 
 	void ObjectLoader::ClearObjectData()
 	{
@@ -498,14 +507,14 @@ namespace HS_Engine
 		m_NormalData.clear();
 		m_TexData.clear();
 		m_facesData.clear();
-		m_min={ FLT_MAX, FLT_MAX, FLT_MAX };
-		m_max={ -FLT_MAX, -FLT_MAX, -FLT_MAX };
+		m_min = { FLT_MAX, FLT_MAX, FLT_MAX };
+		m_max = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
 	}
 
 
-	ObjectLoader::ObjectVertex::ObjectVertex( ObjectLoader* data,std::string& vertexStr) : m_pIdx(-1), m_nIdx(-1), m_tcIdx(-1)
+	ObjectLoader::ObjectVertex::ObjectVertex(ObjectLoader* data, std::string& vertexStr) : m_pIdx(-1), m_nIdx(-1), m_tcIdx(-1)
 	{
-		
+
 		// vertex/tex/nor
 		// num/num/num
 		size_t slash1;
@@ -553,19 +562,19 @@ namespace HS_Engine
 	}
 
 
-	
+
 	void ObjectLoader::AdjustRange()
 	{
 		glm::vec3 point = (m_max + m_min) * 0.5f;
-		float CheckRange = GetHugeModelAxisRange()*0.5f;
-		
+		float CheckRange = GetHugeModelAxisRange() * 0.5f;
+
 		for (auto& vertex : m_VertexData)
 		{
 			vertex -= point;
 			vertex /= CheckRange;
 		}
-		
-		
+
+
 	}
 
 	float ObjectLoader::GetHugeModelAxisRange()
@@ -682,6 +691,39 @@ namespace HS_Engine
 		uv.t = 0.5f * (vc / maxAxis + 1.0f);
 
 		return uv;
+	}
+
+	Meshes* ObjectLoader::Load_raw_ptr_meshes(std::string path)
+	{
+
+		return nullptr;
+		
+	}
+
+	void ObjectLoader::LoadOBJfileAssimp(const std::string& path)
+	{
+		bool Ret = false;
+		//TODO : implemented the assimp model loader
+		Assimp::Importer Importer;
+		const aiScene* pScene = Importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+
+		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode )
+		{
+			std::cout << "Load failed obj : " << path << std::endl;
+			std::cout << Importer.GetErrorString() << std::endl;
+			
+		}
+	}
+
+	void ObjectLoader::ProcessTheNode(aiNode* node, const aiScene* scene)
+	{
+		for(unsigned idx = 0; idx < node->mNumMeshes; ++idx)
+		{
+			aiMesh* mesh = scene->mMeshes[node->mMeshes[idx]];
+			
+			
+		}
+			
 	}
 }
 	

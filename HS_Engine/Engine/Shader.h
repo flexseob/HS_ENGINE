@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 
 #pragma once
 #include <string>
@@ -44,18 +44,21 @@ namespace HS_Engine
 
 		unsigned FindUniformLocation(std::string name);
 		unsigned FindUniformBlockIndex(const std::string& name);
+		void SetUniformBlockBinding(const std::string& variable, unsigned int binding_num) const;
 		int GetUnformSizeByLocation(unsigned index);
 		unsigned int GetShaderID()const { return m_ShaderID; }
+		void SetIsDebugShader(bool IsDebug);
+		bool GetIsDebugShader() const;
 	private:
 		unsigned int m_ShaderID;
-
+		bool mIsDebugShader = false;
 
 		// 0 :vert 1:frag 2:geom
 		std::vector<std::pair<E_ShaderTypes,std::string>> m_ShaderPath;
 		std::vector<unsigned int> m_ShaderIDs;
 		//std::unordered_map<unsigned int, std::string> m_UniformIDs;
 		std::unordered_map<std::string, unsigned int> m_UniformIDs;
-		std::unordered_map<unsigned int, std::string> m_UniformBlockID;
+		std::unordered_map< std::string, unsigned int > m_UniformBlockID;
 	};
 
 }

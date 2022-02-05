@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 #include "ObjectManager.h"
 
 #include <imgui.h>
@@ -237,6 +237,26 @@ namespace HS_Engine
 		
 	}
 
+	void ObjectManager::RenderAllDeferred(double dt)
+	{
+		for(auto& object : mObjects)
+		{
+			Object* obj = object.second;
+			obj->PreRender();
+		}
+		
+	}
+
+	void ObjectManager::RenderDebugDraw(double dt)
+	{
+		for(auto& object : mObjects)
+		{
+			Object* obj = object.second;
+			obj->DebugRender();
+		}
+		
+	}
+
 	void ObjectManager::ChangeAllObjectShader(std::shared_ptr<Shader> shader)
 	{
 		for (auto& object : mObjects)
@@ -282,7 +302,7 @@ namespace HS_Engine
 	void ObjectManager::EnvironmentMapping(std::function<void(Camera&, Object*)> function, std::shared_ptr<FrameBuffer> framebuffer)
 	{
 
-
+		mIsEnvironmentmappingFunctionExist = true;
 		GLenum DrawBuffers[2] = { GL_COLOR_ATTACHMENT0,GL_DEPTH_ATTACHMENT };
 		GLuint numBuffers = 2;
 		
@@ -309,6 +329,21 @@ namespace HS_Engine
 		
 
 		
+	}
+
+	void ObjectManager::DeferredShading(std::function<void()> function, std::shared_ptr<FrameBuffer> framebuffer)
+	{
+		GLenum DrawBuffers[8] = { GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,GL_COLOR_ATTACHMENT4,GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6,GL_COLOR_ATTACHMENT7 };
+		GLuint numBuffers =8;
+
+		framebuffer->Bind();
+		function();
+		glDrawBuffers(numBuffers, DrawBuffers);
+		for(int attachement = 0; attachement < 8; ++attachement)
+		{
+			framebuffer->CreateFrameTexture(mTextureManager.GetTexture(mDeferredMappingName[attachement]), DrawBuffers[attachement]);
+		}
+		framebuffer->UnBind();
 	}
 
 	void ObjectManager::GUIViewer()
@@ -405,21 +440,26 @@ namespace HS_Engine
 							object->SetIsDisplayDebug(false);
 						}
 					}
-					bool is_change2 = object->GetIsEnvironmentMapping();
-					bool check = ImGui::Checkbox("EnvironemntSetting On/off",&is_change2);
-					object->SetEnvironmentMapping(is_change2);
-					if(is_change2 == false && check == true)
+					
+					if (mIsEnvironmentmappingFunctionExist)
 					{
-						mEnvironmentObjects.erase(object->GetObjectName());
-					}else if(is_change2 == true && check == true)
-					{
-						mEnvironmentObjects.insert({ object->GetObjectName(),object });
-						object->GetObjData().m_material.AddCubeMappingTexture({ {E_CUBE_MAP::TOP,mTextureManager.GetTexture(object->GetObjectName() + "TopFrame")},
-										{E_CUBE_MAP::BOTTOM,mTextureManager.GetTexture(object->GetObjectName() + "BottomFrame")},
-										{E_CUBE_MAP::BACK,mTextureManager.GetTexture(object->GetObjectName() + "BackFrame")},
-										{E_CUBE_MAP::FRONT,mTextureManager.GetTexture(object->GetObjectName() + "FrontFrame")},
-										{E_CUBE_MAP::RIGHT,mTextureManager.GetTexture(object->GetObjectName() + "RightFrame")},
-										{E_CUBE_MAP::LEFT,mTextureManager.GetTexture(object->GetObjectName() + "LeftFrame")} });
+						bool is_change2 = object->GetIsEnvironmentMapping();
+						bool check = ImGui::Checkbox("EnvironemntSetting On/off", &is_change2);
+						object->SetEnvironmentMapping(is_change2);
+						if (is_change2 == false && check == true)
+						{
+							mEnvironmentObjects.erase(object->GetObjectName());
+						}
+						else if (is_change2 == true && check == true)
+						{
+							mEnvironmentObjects.insert({ object->GetObjectName(),object });
+							object->GetObjData().m_material.AddCubeMappingTexture({ {E_CUBE_MAP::TOP,mTextureManager.GetTexture(object->GetObjectName() + "TopFrame")},
+											{E_CUBE_MAP::BOTTOM,mTextureManager.GetTexture(object->GetObjectName() + "BottomFrame")},
+											{E_CUBE_MAP::BACK,mTextureManager.GetTexture(object->GetObjectName() + "BackFrame")},
+											{E_CUBE_MAP::FRONT,mTextureManager.GetTexture(object->GetObjectName() + "FrontFrame")},
+											{E_CUBE_MAP::RIGHT,mTextureManager.GetTexture(object->GetObjectName() + "RightFrame")},
+											{E_CUBE_MAP::LEFT,mTextureManager.GetTexture(object->GetObjectName() + "LeftFrame")} });
+						}
 					}
 					if (object->GetIsEnvironmentMapping() == true)
 					{
@@ -551,11 +591,11 @@ namespace HS_Engine
 				
 					if (!object->GetObjData().m_material.IsExistSpecularTexture())
 					{
-						Is_change_material |= ImGui::DragFloat3("diffuse", reinterpret_cast<float*>(&objectMaterialDiffuse), 0.01f, 0.000f, 1.000f, "%.4f", 1);
+						Is_change_material |= ImGui::ColorEdit3("diffuse", reinterpret_cast<float*>(&objectMaterialDiffuse), 1);
 					}
 					if(!object->GetObjData().m_material.IsExistSpecularTexture())
 					{
-						Is_change_material |= ImGui::DragFloat3("Specular", reinterpret_cast<float*>(&objectMaterialSpecular), 0.01f, -1000.000f, 1.000f, "%.4f", 1);
+						Is_change_material |= ImGui::ColorEdit3("Specular", reinterpret_cast<float*>(&objectMaterialSpecular), 1);
 					}
 					
 					Is_change_material |= ImGui::ColorEdit3("Ambient", reinterpret_cast<float*>(&objectMaterialAmbient), 1);
@@ -625,7 +665,8 @@ namespace HS_Engine
 		
 	}
 
-
-
-	
+	bool ObjectManager::GetIsEnvironmentFunctionExist() const
+	{
+		return mIsEnvironmentmappingFunctionExist;
+	}
 }

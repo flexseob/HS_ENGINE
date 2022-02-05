@@ -48,7 +48,7 @@ struct Material
     float shininess;
     vec3 emissive;
 };
-const int MAX_LIGHT = 16;
+const int MAX_LIGHT = 500;
 struct Light 
 {
     // int LightType;

@@ -1,8 +1,11 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 
 #include "LightManager.h"
+
+#include <iostream>
+
 #include "Engine.h"
 #include <random>
 namespace HS_Engine
@@ -111,13 +114,13 @@ namespace HS_Engine
 		HS_Engine::MeshManager& mMeshManager = mObjectManager.GetMeshManager();
 		for(int idx =0; idx<m_Lights.size(); ++idx)
 		{
-			auto& findlight = m_Lights.at(idx);
-			if(findlight.first == lightname)
+			auto& findLight = m_Lights.at(idx);
+			if(findLight.first == lightname)
 			{
-				Light* light = findlight.second;
+				Light* light = findLight.second;
 				mNeedtoDeleteLight.push(light);
 				
-				findlight = std::move(m_Lights.back());
+				findLight = std::move(m_Lights.back());
 				m_Lights.pop_back();
 
 				m_LightRawDatas[idx] = std::move(m_LightRawDatas.back());
@@ -155,8 +158,6 @@ namespace HS_Engine
 
 	void LightManager::RenderAll(double dt)
 	{
-
-		
 		for (auto& light : m_Lights)
 		{
 			Light* obj = light.second;
@@ -164,7 +165,6 @@ namespace HS_Engine
 			obj->Render();
 			obj->PostRender(dt);
 		}
-		
 	}
 
 	void LightManager::RenderAllForFrameBuffer(double dt)
@@ -186,7 +186,6 @@ namespace HS_Engine
 		int idx = 0;
 		for(auto& light : m_Lights)
 		{
-
 			m_LightRawDatas[idx] = light.second->GetLightDataRef();
 
 			light.second->GetLightData()->direction.x = -light.second->GetLightData()->lightPosition.x;
@@ -525,6 +524,42 @@ namespace HS_Engine
 				lightnum++;
 			}
 		}
+
+		ImGui::SameLine();
+		//if (ImGui::Button("Scenario4"))
+		//{
+
+		//	std::random_device device;
+		//	std::mt19937 generator(device());
+		//	std::uniform_int_distribution<int> distribution(0, 255);
+		//	std::uniform_int_distribution<int> distributionLight(1, 2);
+		//	lightnum = 1;
+		//	DeleteAllLight();
+		//	DeleteLightQueue();
+		//	const int rowLight = 10;
+		//	int columnLight = 0;
+		//	int column = 0;
+		//	for (int idx = 0; idx < m_MaxLightCount; idx++)
+		//	{
+		//		HS_Engine::Light* object = new HS_Engine::Light("NewLight" + std::to_string(lightnum), "SphereProcedural", E_MeshTypes::BY_PROCEDURALMESH, E_Proceduralmesh::SPHERE, E_RenderTypes::TRIANGLES);
+		//		object->SetShader(m_LightShader);
+		//		object->SetMaterial(HS_Engine::Material());
+		//		object->Init();
+		//		object->GetLightData()->lightDiffuse = { distribution(device) / 255.f,distribution(device) / 255.f ,distribution(device) / 255.f };
+		//		object->GetLightData()->lightAmbient = { distribution(device) / 255.f,distribution(device) / 255.f ,distribution(device) / 255.f };
+		//		object->GetLightData()->lightSpecular = { distribution(device) / 255.f,distribution(device) / 255.f ,distribution(device) / 255.f };
+		//		object->GetLightData()->lightType = distributionLight(device);
+		//		object->SetPosition({ 1.f * columnLight , 0.f, 1.f *(lightnum %rowLight) });
+		//		object->SetScale({ 0.1f, 0.1f, 0.1f });
+		//		AddLight(object);
+		//		lightnum++;
+		//		if((lightnum%rowLight) == 0)
+		//		{
+		//			columnLight++;
+		//		}
+		//	}
+		//}
+		
 		
 	}
 }

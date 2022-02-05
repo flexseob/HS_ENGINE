@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 #include "Object.h"
 
 #include "Engine.h"
@@ -45,9 +45,12 @@ namespace HS_Engine
 			{
 				m_shader->FindUniformLocation("diffuse_texture_isexist");
 				m_shader->FindUniformLocation("diffuse_texture");
-				m_shader->FindUniformLocation("gpu_calculation");
-				m_shader->FindUniformLocation("UV_mapping_mode");
-				m_shader->FindUniformLocation("UV_Entity_Normal");
+				if (m_shader->GetIsDebugShader() == false)
+				{
+					m_shader->FindUniformLocation("gpu_calculation");
+					m_shader->FindUniformLocation("UV_mapping_mode");
+					m_shader->FindUniformLocation("UV_Entity_Normal");
+				}
 			}
 			if (GetObjData().m_material.IsExistSpecularTexture())
 			{
@@ -229,79 +232,75 @@ namespace HS_Engine
 		if (!m_shader) return;
 		
 		m_shader->Bind();
+	/*	if (m_shader->GetIsDebugShader() == false)
+		{*/
 		m_shader->BindUniformVariable("material.diffuse", m_ObjData.m_material.Getdiffuse());
-
-		if (!dynamic_cast<Light*>(this))
-		{
-			m_shader->BindUniformVariable("material.ambient", m_ObjData.m_material.GetAmbient());
-			m_shader->BindUniformVariable("material.specular", m_ObjData.m_material.GetSpecular());
-
-			m_shader->BindUniformVariable("material.shininess", m_ObjData.m_material.GetShinness());
-			m_shader->BindUniformVariable("material.emissive", m_ObjData.m_material.GetEmissive());
-
-			if (GetObjData().m_material.IsExistDiffuseTexture())
+		
+			if (!dynamic_cast<Light*>(this))
 			{
-				GetObjData().m_material.GetDiffuseTexture()->Bind();
-				m_shader->BindUniformVariable("diffuse_texture_isexist", true);
-				m_shader->BindUniformVariable("diffuse_texture", static_cast<int>(GetObjData().m_material.GetDiffuseTexture()->GetTextureIdx()));
-				m_shader->BindUniformVariable("gpu_calculation", GetMesh()->GetGPUCalucation());
-				m_shader->BindUniformVariable("UV_mapping_mode", static_cast<int>(GetMesh()->GetUVType()));
-				m_shader->BindUniformVariable("UV_Entity_Normal", static_cast<int>(GetMesh()->GetUV_Entity_Types()));
-				
-			}
-			else
-			{
+				m_shader->BindUniformVariable("material.ambient", m_ObjData.m_material.GetAmbient());
+				m_shader->BindUniformVariable("material.specular", m_ObjData.m_material.GetSpecular());
 
-				m_shader->BindUniformVariable("diffuse_texture_isexist", false);
-			}
-			
-			if (GetObjData().m_material.IsExistSpecularTexture())
-			{
-				GetObjData().m_material.GetSpecularTexture()->Bind();
-				m_shader->BindUniformVariable("specular_texture_isexist", true);
-				m_shader->BindUniformVariable("specular_texture", static_cast<int>(GetObjData().m_material.GetSpecularTexture()->GetTextureIdx()));
-			}
-			else
-			{
-				m_shader->BindUniformVariable("specular_texture_isexist", false);
-			}
+				m_shader->BindUniformVariable("material.shininess", m_ObjData.m_material.GetShinness());
+				m_shader->BindUniformVariable("material.emissive", m_ObjData.m_material.GetEmissive());
 
-			if(GetIsEnvironmentMapping() == true)
-			{
-				m_shader->BindUniformVariable("isEnvironmentMapping", GetIsEnvironmentMapping());
-				for(auto& texture : GetObjData().m_material.GetMappingTexture())
+				if (GetObjData().m_material.IsExistDiffuseTexture())
 				{
-					texture.second->Bind();
-					m_shader->FindUniformLocation(texture.first);
-					const int texidx = static_cast<int>(texture.second->GetTextureIdx());
-					m_shader->BindUniformVariable(texture.first, texidx);
-					m_shader->BindUniformVariable("EnvironmentMode", static_cast<int>(GetEnvironmentMode()));
-					m_shader->BindUniformVariable("RefractionIdx", GetRefractionIndex());
-					m_shader->BindUniformVariable("isPhongshading", m_IsPhongShading_with);
-					m_shader->BindUniformVariable("PhongShadingvalue", m_PhongShadingValue);
-				}
-				
-			}else
-			{
-				m_shader->BindUniformVariable("isEnvironmentMapping", false);
-			}
+					GetObjData().m_material.GetDiffuseTexture()->Bind();
+					m_shader->BindUniformVariable("diffuse_texture_isexist", true);
+					m_shader->BindUniformVariable("diffuse_texture", static_cast<int>(GetObjData().m_material.GetDiffuseTexture()->GetTextureIdx()));
+					m_shader->BindUniformVariable("gpu_calculation", GetMesh()->GetGPUCalucation());
+					m_shader->BindUniformVariable("UV_mapping_mode", static_cast<int>(GetMesh()->GetUVType()));
+					m_shader->BindUniformVariable("UV_Entity_Normal", static_cast<int>(GetMesh()->GetUV_Entity_Types()));
 
-			
-		}
+				}
+				else
+				{
+
+					m_shader->BindUniformVariable("diffuse_texture_isexist", false);
+				}
+
+				if (GetObjData().m_material.IsExistSpecularTexture())
+				{
+					GetObjData().m_material.GetSpecularTexture()->Bind();
+					m_shader->BindUniformVariable("specular_texture_isexist", true);
+					m_shader->BindUniformVariable("specular_texture", static_cast<int>(GetObjData().m_material.GetSpecularTexture()->GetTextureIdx()));
+				}
+				else
+				{
+					m_shader->BindUniformVariable("specular_texture_isexist", false);
+				}
+
+				if (GetIsEnvironmentMapping() == true)
+				{
+					m_shader->BindUniformVariable("isEnvironmentMapping", GetIsEnvironmentMapping());
+					for (auto& texture : GetObjData().m_material.GetMappingTexture())
+					{
+						texture.second->Bind();
+						m_shader->FindUniformLocation(texture.first);
+						const int texidx = static_cast<int>(texture.second->GetTextureIdx());
+						m_shader->BindUniformVariable(texture.first, texidx);
+						m_shader->BindUniformVariable("EnvironmentMode", static_cast<int>(GetEnvironmentMode()));
+						m_shader->BindUniformVariable("RefractionIdx", GetRefractionIndex());
+						m_shader->BindUniformVariable("isPhongshading", m_IsPhongShading_with);
+						m_shader->BindUniformVariable("PhongShadingvalue", m_PhongShadingValue);
+					}
+
+				}
+				else
+				{
+					m_shader->BindUniformVariable("isEnvironmentMapping", false);
+				}
+
+
+			}
+		//}
 		
 		m_shader->BindUniformVariable("model", m_ObjData.m_ModelMat);
 		
 		m_mesh->Render(m_RenderType);
 		m_shader->Unbind();
 
-		if (GetIsDisplayDebug() == true)
-		{
-			m_shader_debug->FindUniformLocation("model");
-			m_shader_debug->Bind();
-			m_shader_debug->BindUniformVariable("model", m_ObjData.m_ModelMat);
-			m_mesh->DebugRender();
-			m_shader_debug->Unbind();
-		}
 	}
 
 	void Object::PostRender([[maybe_unused]]double dt)
@@ -309,6 +308,18 @@ namespace HS_Engine
 		if(m_PostRenderFunction != nullptr)
 		{
 			m_PostRenderFunction(dt);
+		}
+	}
+
+	void Object::DebugRender()
+	{
+		if (GetIsDisplayDebug() == true)
+		{
+			m_shader_debug->FindUniformLocation("model");
+			m_shader_debug->Bind();
+			m_shader_debug->BindUniformVariable("model", m_ObjData.m_ModelMat);
+			m_mesh->DebugRender();
+			m_shader_debug->Unbind();
 		}
 	}
 
@@ -326,10 +337,10 @@ namespace HS_Engine
 
 	void Object::SetEnvironmentMapping(bool Isenvironment)
 	{
+		auto& mTextureManager = HS_Engine::Engine::GetObjectManager().GetTextureManager();
 		if (m_IsEnvironmentMapping != true && Isenvironment == true)
 		{
 			m_IsEnvironmentMapping = Isenvironment;
-			auto& mTextureManager = HS_Engine::Engine::GetObjectManager().GetTextureManager();
 			mTextureManager.AddTextureInternal(GetObjectName() + "FrontFrame", new HS_Engine::Texture(0x8, 1600, 900));
 			mTextureManager.AddTextureInternal(GetObjectName() + "TopFrame", new HS_Engine::Texture(0x9, 1600, 900));
 			mTextureManager.AddTextureInternal(GetObjectName() + "BottomFrame", new HS_Engine::Texture(0xA, 1600, 900));
@@ -340,6 +351,12 @@ namespace HS_Engine
 		else if(m_IsEnvironmentMapping == true && Isenvironment == false)
 		{
 			m_IsEnvironmentMapping = false;
+			mTextureManager.DeleteTexture(GetObjectName() + "FrontFrame");
+			mTextureManager.DeleteTexture(GetObjectName() + "TopFrame");
+			mTextureManager.DeleteTexture(GetObjectName() + "BottomFrame");
+			mTextureManager.DeleteTexture(GetObjectName() + "LeftFrame");
+			mTextureManager.DeleteTexture(GetObjectName() + "RightFrame");
+			mTextureManager.DeleteTexture(GetObjectName() + "BackFrame");
 		}
 	}
 

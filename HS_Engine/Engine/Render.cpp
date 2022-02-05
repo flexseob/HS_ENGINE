@@ -1,7 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
-
+End Header--------------------------------------------------------*/
 #include "Render.h"
 
 #include <iostream>
@@ -64,5 +63,10 @@ void HS_Engine::Render::DrawPatches(std::shared_ptr<VertexArray> vertex_array)
 void HS_Engine::Render::DrawLine(std::shared_ptr<VertexArray> vertex_array)
 {
 	glDrawArrays(GL_LINES, 0, vertex_array->GetIndexBuffers()->GetCount());
+}
+
+void HS_Engine::Render::DrawTriangleStrip(std::shared_ptr<VertexArray> vertex_array)
+{
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_array->GetIndexBuffers()->GetCount());
 }
 

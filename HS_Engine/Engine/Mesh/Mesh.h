@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 #pragma once
 #include <functional>
 #include <memory>
@@ -13,10 +13,20 @@ End Header-------------------------------------------------------- */
 #include "../Types.h"
 namespace HS_Engine
 {
+	class Mesh;
 	class Shader;
 	class ObjectVertex;
 
+	class Meshes
+	{
+	public:
+		Meshes() = default;
+		void AddMeshes(Mesh* mesh);
+	private:
+		std::vector<Mesh*> mMeshes;
+	};
 
+	
 	class Mesh
 	{
 	public:

@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 #pragma once
 #include <functional>
 #include <string>
@@ -66,6 +66,7 @@ namespace HS_Engine
 		virtual void Render();
 		virtual void PostRender(double dt);
 
+		virtual void DebugRender();
 		void SetPostRenderFunction(std::function<void(double)> function);
 		std::function<void(double)> m_PostRenderFunction = nullptr;
 		float count = 0;

@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 
 #include "Engine.h"
 #include <GL/glew.h>
@@ -11,7 +11,7 @@ End Header-------------------------------------------------------- */
 namespace HS_Engine
 {
 	bool Engine::mIsDemoEnded = false;
-	std::unique_ptr<Window> Engine::m_Window = std::make_unique<Window>(WindowProperties("CS300 Project"));
+	std::unique_ptr<Window> Engine::m_Window = std::make_unique<Window>(WindowProperties("CS350 Project"));
 	Engine::Engine()	:	m_SceneManager(this), m_ImguiManager(&m_SceneManager, m_Window.get()->GetWindowData().m_window)
 	{
 
@@ -35,11 +35,11 @@ namespace HS_Engine
 			const std::chrono::duration deltaTick = nowTime - pastTime;
 			deltatime = std::chrono::duration<double>(deltaTick).count();
 
-			if (deltatime > 0.1)
+		/*	if (deltatime > 0.1)
 			{
 				deltatime = 0.033;
 			}
-			
+			*/
 			
 			if(1/m_FPS <= deltatime)
 			{

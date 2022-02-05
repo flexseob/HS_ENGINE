@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 #include "Mesh.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -281,6 +281,11 @@ namespace HS_Engine
 		m_NormalType = normal_types;
 	}
 
+
+	void Meshes::AddMeshes(Mesh* mesh)
+	{
+		mMeshes.push_back(mesh);
+	}
 
 	void Mesh::InitBuffer()
 	{

@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 #pragma once
 #include <initializer_list>
 #include <string>
@@ -101,11 +101,16 @@ namespace HS_Engine
 	{
 	public:
 		FrameBuffer(int initTexturewidth, int initTextureheight);
+		FrameBuffer(int initTexturewidth, int initTextureheight,GLenum attachment);
 		~FrameBuffer();
-		void Bind() const;
-		void UnBind() const;
-		void Init();
+		void Bind() const noexcept;
+		void BindReadBuffer() const noexcept;
+		void UnBind() const noexcept;
+		void BindDrawBuffer() const noexcept;
+		void BlitFrameBuffer() const noexcept;
+		void Init(int atttachment);
 		void CreateFrameTexture(Texture* texture);
+		void CreateFrameTexture(Texture* texture, GLenum attachment) const  noexcept;
 		void DeleteBuffer()const;
 		Texture* GetFrameTexture() const;
 		
@@ -113,6 +118,9 @@ namespace HS_Engine
 	private:
 		unsigned int m_FrameBuffer_ID = std::numeric_limits<unsigned int>::max();
 		unsigned int m_DepthRenderBuffer_ID = std::numeric_limits<unsigned int>::max();
+		std::vector<unsigned int> m_DrawBuffers;
+		int m_TextureWidth;
+		int m_TextureHeight;
 		Texture* m_Texture = nullptr;
 		HS_Engine::DescribeData m_Describe_Data;
 	};

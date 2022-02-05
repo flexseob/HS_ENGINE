@@ -1,8 +1,11 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 
 #include "Camera.h"
+
+#include <glm/gtc/quaternion.hpp>
+
 namespace HS_Engine
 {
 	Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) :
@@ -28,6 +31,14 @@ namespace HS_Engine
 	glm::mat4 Camera::GetCameraMat()
 	{
 		return glm::lookAt(Position, Position + Front, Up);
+	}
+
+	void Camera::ResetCamera(glm::vec3 campos)
+	{
+		Position = campos;
+		WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+		Yaw = -90.f;
+		Pitch = 0.f;
 	}
 
 	void Camera::KeyboardInput(Camera_MoveTo direction, double deltaTime)

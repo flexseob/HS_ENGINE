@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 #pragma once
 #include <memory>
 #include <string>
@@ -8,6 +8,11 @@ End Header-------------------------------------------------------- */
 #include <glm/detail/type_vec.hpp>
 #include "Mesh/Mesh.h"
 #include <cfloat>
+
+
+struct aiScene;
+struct aiNode;
+
 namespace  HS_Engine
 {
 
@@ -28,6 +33,11 @@ namespace  HS_Engine
 		static glm::vec2 CreateSphericalUV(glm::vec3 vec3);
 		static glm::vec2 CreateCylindricalUV(glm::vec3 vec3);
 		static glm::vec2 CreateCubeMapUV(glm::vec3 vec3);
+
+		//assimpVersion
+		Meshes* Load_raw_ptr_meshes(std::string path);
+		void LoadOBJfileAssimp(const std::string& path);
+		void ProcessTheNode(aiNode* node, const aiScene* scene);
 		
 		// Adjust to model vertices to [-1 ,1]
 		void AdjustRange();
@@ -56,6 +66,7 @@ namespace  HS_Engine
 		glm::vec3 m_min{ FLT_MAX, FLT_MAX, FLT_MAX };
 		glm::vec3 m_max{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
+		Meshes* mMeshes = nullptr;
 		
 	};
 

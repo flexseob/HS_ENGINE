@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 
 #pragma once
 #include <glm/glm.hpp>
@@ -39,7 +39,7 @@ namespace HS_Engine
 	    void MouseScrollInput(float yoffset);
 	    void updateCameraVectors();
 	    glm::mat4 GetCameraMat();
-
+        void ResetCamera(glm::vec3 campos= glm::vec3(0.0f, 0.0f, 0.0f));
     public:
         glm::vec3 Position;
         glm::vec3 Front;

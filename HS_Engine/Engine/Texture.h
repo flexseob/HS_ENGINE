@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 #pragma once
 #include <limits>
 #include <string>
@@ -14,6 +14,9 @@ namespace HS_Engine
 		Texture(std::string path,unsigned texture_idx, bool is_skybox);
 		Texture(unsigned texture_ID , unsigned int texture_idx);
 		Texture(unsigned texture_idx, int width, int height);
+		Texture(unsigned texture_idx, int width, int height,unsigned int internalformat);
+		Texture(unsigned texture_idx, int width, int height,unsigned int internalformat, int depth);
+		
 		~Texture();
 		void SetTextureIndex(unsigned index);
 		void Bind();

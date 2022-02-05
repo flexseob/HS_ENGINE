@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 #include "MeshManager.h"
 #include "Mesh/ProceduralMesh.h"
 #include <iostream>

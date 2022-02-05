@@ -1,6 +1,6 @@
 /* Start Header------------------------------------------------------ -
 Hoseob Jeong
-End Header-------------------------------------------------------- */
+End Header--------------------------------------------------------*/
 
 #pragma once
 #include <memory>
@@ -25,6 +25,6 @@ namespace HS_Engine
 		static void DrawSolid(std::shared_ptr<VertexArray> vertex_array);
 		static void DrawPatches(std::shared_ptr<VertexArray>vertex_array);
 		static void DrawLine(std::shared_ptr<VertexArray> vertex_array);
-
+		static void DrawTriangleStrip(std::shared_ptr<VertexArray> vertex_array);
 	};
 }
